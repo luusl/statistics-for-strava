@@ -13,20 +13,21 @@ appearance:
     layout:
       - { 'widget': 'mostRecentActivities', 'width': 66, 'enabled': true, 'config': { 'numberOfActivitiesToDisplay': 5 } }
       - { 'widget': 'introText', 'width': 33, 'enabled': true }
-      - { 'widget': 'weeklyStats', 'width': 100, 'enabled': true, 'config': { metricsDisplayOrder: ['distance', 'movingTime', 'elevation'] } }
+      - { 'widget': 'weeklyGoals', 'width': 33, 'enabled': false, 'config': { 'goals': [] } }
+      - { 'widget': 'weeklyStats', 'width': 100, 'enabled': true, 'config': { 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
       - { 'widget': 'peakPowerOutputs', 'width': 50, 'enabled': true }
       - { 'widget': 'heartRateZones', 'width': 50, 'enabled': true }
       - { 'widget': 'activityGrid', 'width': 100, 'enabled': true }
-      - { 'widget': 'monthlyStats', 'width': 100, 'enabled': true, 'config': { enableLastXYearsByDefault: 10, metricsDisplayOrder: ['distance', 'movingTime', 'elevation'] } }
+      - { 'widget': 'monthlyStats', 'width': 100, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
       - { 'widget': 'trainingLoad', 'width': 100, 'enabled': true }
       - { 'widget': 'weekdayStats', 'width': 50, 'enabled': true }
       - { 'widget': 'dayTimeStats', 'width': 50, 'enabled': true }
       - { 'widget': 'distanceBreakdown', 'width': 100, 'enabled': true }
-      - { 'widget': 'yearlyStats', 'width': 100, 'enabled': true, 'config': { enableLastXYearsByDefault: 10, metricsDisplayOrder: ['distance', 'movingTime', 'elevation'] } }
+      - { 'widget': 'yearlyStats', 'width': 100, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
       - { 'widget': 'zwiftStats', 'width': 50, 'enabled': true }
-      - { 'widget': 'gearStats', 'width': 50, 'enabled': true, 'config': { 'includeRetiredGear': true } }
+      - { 'widget': 'gearStats', 'width': 50, 'enabled': true, 'config': { ''includeRetiredGear'': true } }
       - { 'widget': 'eddington', 'width': 50, 'enabled': true }
-      - { 'widget': 'challengeConsistency', 'width': 50, 'enabled': true, 'config': { 'consistencyChallenges': [] } }
+      - { 'widget': 'challengeConsistency', 'width': 50, 'enabled': true, 'config': { 'challenges': [] } }
       - { 'widget': 'mostRecentChallengesCompleted', 'width': 50, 'enabled': true, 'config': { 'numberOfChallengesToDisplay': 5 } }
       - { 'widget': 'ftpHistory', 'width': 50, 'enabled': true }
 ```
@@ -58,6 +59,59 @@ It contains a summary of your workout history.
 
 ![introText widget](../assets/images/dashboard-widgets/intro-text.png)
 
+## weeklyGoals
+
+This widget lets you define and track your weekly goals, helping you stay motivated and monitor your weekly progress.
+For the best experience, place it next to the weeklyStats widget to get a clear overview of your weekly performance.
+
+<div class="alert info">
+This widget is disabled in the default dashboard layout. If you want to use this widget you need to configure a custom dashboard layout.
+</div>
+
+* __goals__: An array of goals.
+
+```yml
+{ 'widget': 'weeklyGoals', 'width': 33, 'enabled': false, 'config': { 'goals': [] } }
+```
+
+Each configured goal should contain the following properties:
+
+```yaml
+# The label to be used for this challenge
+label: 'Cycling'
+# Enable or disable the goal. When disabled, it will no longer appear on the dashboard.
+# Alternatively, you can remove the entire entry to exclude it completely.
+enabled: true
+# The goal type.
+# Allowed values: ["distance", "elevation", "movingTime"]
+type: 'distance'
+# The unit to use for measuring this goal.
+# Allowed values: ["km", "m", "mi", "ft", "hour", "minute"]
+unit: 'km'
+# The goal.
+goal: 200
+# The sport types to include in this goal.
+# For a complete list of supported sport types, visit: https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/main-configuration?id=supported-sport-types
+sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide']
+```
+
+### Example
+
+```yaml
+'config': {
+  'goals': [
+    # Cycling
+    { label: 'Cycling', enabled: true, type: 'distance', unit: 'km', goal: 200,  sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide'] },
+    { label: 'Cycling', enabled: true, type: 'movingTime', unit: 'hour', goal: 8,  sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide'] },
+    { label: 'Cycling', enabled: true, type: 'elevation', unit: 'm', goal: 1000,  sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide'] },
+    # Running
+    { label: 'Running', enabled: true, type: 'movingTime', unit: 'hour', goal: 2,  sportTypesToInclude: ['Run'] },
+  ]
+}
+```
+
+![weeklyGoals widget](../assets/images/dashboard-widgets/weekly-goals.png)
+
 ## weeklyStats
 
 This widget provides a summary of your weekly statistics per sport type, including total distance and moving time
@@ -65,7 +119,7 @@ This widget provides a summary of your weekly statistics per sport type, includi
 * __metricsDisplayOrder__: The order in which the metrics are displayed in the widget. Supported metrics are 'distance', 'movingTime' and 'elevation'. All 3 metrics must be included.
 
 ```yml
-{ 'widget': 'weeklyStats', 'width': 100, 'enabled': true, 'config': { metricsDisplayOrder: ['distance', 'movingTime', 'elevation'] } }
+{ 'widget': 'weeklyStats', 'width': 100, 'enabled': true, 'config': { 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
 ```
 
 ![weeklyStats widget](../assets/images/dashboard-widgets/weekly-stats.png)
@@ -108,7 +162,7 @@ This widget displays your monthly statistics and lets you compare your performan
 * __metricsDisplayOrder__: The order in which the metrics are displayed in the widget. Supported metrics are 'distance', 'movingTime' and 'elevation'. All 3 metrics must be included.
 
 ```yml
-{ 'widget': 'monthlyStats', 'width': 100, 'enabled': true, 'config': { enableLastXYearsByDefault: 10, metricsDisplayOrder: ['distance', 'movingTime', 'elevation'] } }
+{ 'widget': 'monthlyStats', 'width': 100, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
 ```
 
 ![monthlyStats widget](../assets/images/dashboard-widgets/monthly-stats.png)
@@ -165,7 +219,7 @@ This widget shows your yearly stats per activity type, allowing you to track you
 * __metricsDisplayOrder__: The order in which the metrics are displayed in the widget. Supported metrics are 'distance', 'movingTime' and 'elevation'. All 3 metrics must be included.
 
 ```yml
-{ 'widget': 'yearlyStats', 'width': 100, 'enabled': true, 'config': { enableLastXYearsByDefault: 10, metricsDisplayOrder: ['distance', 'movingTime', 'elevation'] } }
+{ 'widget': 'yearlyStats', 'width': 100, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
 ```
 
 ![yearlyStats widget](../assets/images/dashboard-widgets/yearly-stats.png)
@@ -211,7 +265,7 @@ The app uses sensible defaults for the challenges. Leave this setting unchanged 
 * __challenges__: An array of challenges.
 
 ```yml
-{ 'widget': 'challengeConsistency', 'width': 50, 'enabled': true, config: { 'challenges': [] } }
+{ 'widget': 'challengeConsistency', 'width': 50, 'enabled': true, 'config': { 'challenges': [] } }
 ```
 
 Each configured challenge should contain the following properties:
@@ -238,8 +292,8 @@ sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide']
 ### The defaults
 
 ```yaml
-config: {
-  challenges: [
+'config': {
+  'challenges': [
     # Cycling
     { label: 'Ride a total of 200km',  enabled: true, type: 'distance', unit: 'km', goal: 200,  sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide'] },
     { label: 'Ride a total of 600km',  enabled: true, type: 'distance', unit: 'km', goal: 600,  sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide'] },
