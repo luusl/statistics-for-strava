@@ -127,7 +127,15 @@ services:
 
     App\Domain\Integration\Notification\Ntfy\NtfyUrl:
         factory: [ null, 'fromOptionalString' ]
-        arguments: ['@=app_config("general.ntfyUrl")']
+        arguments: ['@=app_config("integrations.notifications.ntfyUrl", "")']
+
+    App\Domain\Integration\Notification\Ntfy\NtfyUsername:
+      factory: [ null, 'fromOptionalString' ]
+      arguments: ['@=app_config("integrations.notifications.ntfyUsername", "")']
+
+    App\Domain\Integration\Notification\Ntfy\NtfyPassword:
+      factory: [ null, 'fromOptionalString' ]
+      arguments: ['@=app_config("integrations.notifications.ntfyPassword", "")']
 
     App\Domain\Strava\StravaClientId:
         factory: [ null, 'fromString' ]
@@ -195,11 +203,11 @@ services:
 
     App\Domain\Gear\CustomGear\CustomGearConfig:
         factory: [ null, 'fromArray' ]
-        arguments: ['@=app_config("customGear", [])']
+        arguments: ['@=app_config("gear.customGear", [])']
 
     App\Domain\Gear\ImportedGear\ImportedGearConfig:
       factory: [ null, 'fromArray' ]
-      arguments: ['@=app_config("stravaGear", [])']
+      arguments: ['@=app_config("gear.stravaGear", [])']
 
     App\Domain\Gear\Maintenance\GearMaintenanceConfig:
         factory: [ null, 'fromArray' ]
@@ -216,6 +224,10 @@ services:
     App\Domain\Zwift\ZwiftRacingScore:
         factory: [ null, 'fromOptionalString' ]
         arguments: ['@=app_config("zwift.racingScore")']
+
+    App\Infrastructure\Daemon\Cron\ConfiguredCronActions:
+        factory: [ null, 'fromConfig' ]
+        arguments: [ '@=app_config("daemon.cron", [])' ]
 
     # Autowiring of vendor classes
     League\Flysystem\FilesystemOperator: '@default.storage'

@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 
-final readonly class InMemoryCommandBus implements CommandBus
+final class InMemoryCommandBus implements CommandBus
 {
     private MessageBusInterface $bus;
 
@@ -25,24 +25,29 @@ final readonly class InMemoryCommandBus implements CommandBus
      */
     public function __construct(
         #[AutowireIterator('app.command_handler')]
-        iterable $commandHandlers,
+        private readonly iterable $commandHandlers,
     ) {
-        $this->bus = new MessageBus([
-            new HandleMessageMiddleware(
-                new HandlersLocator(
-                    new HandlerBuilder(HandlerBuilderType::COMMAND_HANDLER)
-                        ->fromCallables($commandHandlers),
-                ),
-            ),
-        ]);
     }
 
     public function dispatch(Command $command): void
     {
+        // Initializing the bus here allows us to dispatch command in commandHandlers.
+        // Otherwise, we end up with infinite recursion in the container.
+        if (!isset($this->bus)) {
+            $this->bus = new MessageBus([
+                new HandleMessageMiddleware(
+                    new HandlersLocator(
+                        new HandlerBuilder(HandlerBuilderType::COMMAND_HANDLER)
+                            ->fromCallables($this->commandHandlers),
+                    ),
+                ),
+            ]);
+        }
+
         try {
             $this->bus->dispatch($command);
         } catch (NoHandlerForMessageException) {
-            throw new \InvalidArgumentException(sprintf('The command has not a valid handler: %s', $command::class));
+            throw new NoHandlerForMessageException($command::class);
         } catch (HandlerFailedException $e) {
             if (!is_null($e->getPrevious())) {
                 throw $e->getPrevious();

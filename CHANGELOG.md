@@ -1,3 +1,69 @@
+# [v4.0.1](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.0.1) - 2025-11-13
+
+## What's Changed
+* Update daemon container configuration in installation.md by @jparnellx in https://github.com/robiningelbrecht/statistics-for-strava/pull/1380
+* ISSUE #1379: Consider cron expression * * * * * as a misconfiguration by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1382
+* ISSUE #1379: Disable Daemon debug mode in Docker image by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1382
+
+## New Contributors
+* @jparnellx made their first contribution in https://github.com/robiningelbrecht/statistics-for-strava/pull/1380
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.0.0...v4.0.1
+
+# [v4.0.0](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.0.0) - 2025-11-12
+
+> [!WARNING]  
+> New major release, several breaking changes!
+>
+> 1. The config option `general.ntfyUrl` has been moved to `integrations.notifications.ntfyUrl`
+> 2. The config option `stravaGear` has been moved to `gear.stravaGear`
+> 3. The separate config file `custom-gear.yaml` has been removed.
+>    Its configuration has been merged into the main config file under `gear.customGear`
+> 
+> Simply copy/paste your existing values into their new locations.
+> https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/main-configuration
+
+🔥This new release adds several new features and improvements. 
+The highlight is the addition of an internal scheduler, allowing you to define and run recurring background tasks directly within the app.
+
+If you prefer, you can still use external tools to trigger the import and build scripts.
+However, to use the internal scheduler, you’ll need to configure two things:
+
+* An extra container in your `docker-compose.yml` file: https://statistics-for-strava-docs.robiningelbrecht.be/#/getting-started/installation?id=docker-composeyml
+* The recurring tasks in your main config file under `daemin.cron`: https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/main-configuration
+
+## What's Changed
+* syntax fix by @oregonpillow in https://github.com/robiningelbrecht/statistics-for-strava/pull/1362
+* ISSUE #1282: Gear maintenance notifications by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1361
+* ISSUE #1336: Move custom gear config to main config file by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1363
+* ISSUE #1366: Fix Custom Gear Cost Calculation by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1367
+* ISSUE #1368: Distance breakdown for walks by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1374
+* ISSUE #1371: Do not crash import when nominatim fails us by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1375
+
+## New Contributors
+* @oregonpillow made their first contribution in https://github.com/robiningelbrecht/statistics-for-strava/pull/1362
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v3.9.0...v4.0.0
+
+# [v3.9.0](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v3.9.0) - 2025-11-06
+
+🔥 This release includes a complete rewrite of the data import process, making it significantly faster, especially for partial imports.
+
+## What's Changed
+* ISSUE #1302: Add new version of Zwift map of New York by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1332
+* ISSUE #1338: Fix tense inconsistency and improve readability in intro summary widget by @lennon101 in https://github.com/robiningelbrecht/statistics-for-strava/pull/1339
+* ISSUE #1330: Use Strava API rate limit headers to provide a faster data import by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1334
+* ISSUE #1335: Add popover with total hours everywhere we display human readable time notation by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1342
+* ISSUE #1337: Do not round the time in weekly by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1343
+* ISSUE #1341: Better support for MyWhoosh by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1344
+* ISSUE #1345: Cache static assets by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1346
+* ISSUE #1347: Reduce file size of Zwift maps by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1348
+* ISSUE #1351: Add Strava activity link to segments efforts by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1354
+* ISSUE #1355: Move tabs tailwind classes to separate component by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1356
+* ISSUE #1357: Do not crash import when OpenWeather API fails us by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1358
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v3.8.4...v3.9.0
+
 # [v3.8.4](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v3.8.4) - 2025-11-02
 
 🔥 This release introduces a new dashboard widget __weeklyGoals__.

@@ -11,10 +11,6 @@ general:
   # Any image can be used; a square format is recommended.
   # Leave empty to disable this feature.
   profilePictureUrl: null
-  # Optional, full URL to ntfy.sh topic (for example https://ntfy.sh/cdd8f660-6b08-4dd8-8b4a-7c4df28642e3). 
-  # This topic will be used to notify you when a new HTML build has run.
-  # Leave empty to disable notifications.
-  ntfyUrl: null
   athlete:
     # Your birthday. Needed to calculate heart rate zones.
     birthday: 'YYYY-MM-DD'
@@ -25,7 +21,7 @@ general:
     # maxHeartRateFormula:
     #    "2020-01-01": 198
     #    "2025-01-10": 193
-    # If you're not sure about your zones, leave this unchanged — the defaults are sensible.
+    # If you're not sure about your zones, leave this unchanged, the defaults are sensible.
     heartRateZones:
       # Relative or absolute. 
       # Relative will treat the zone numbers as percentages based on your max heart rate, while absolute will treat them as actual heartbeats per minute.
@@ -161,19 +157,31 @@ metrics:
       showInNavBar: false
       showInDashboardWidget: false
       sportTypesToInclude: ['Walk', 'Hike']
-# Optional, Used to enrich gear with data that cannot be configured in Strava.  
-stravaGear:
-  - gearId: 'g12337767'
-    # Used to calculate the relative cost per workout and hour.
-    purchasePrice:
-      amountInCents: 123456
-      currency: 'EUR'
+gear:
+    # Optional, Used to enrich gear with data that cannot be configured in Strava.  
+    stravaGear:
+      - gearId: 'g12337767'
+        # Used to calculate the relative cost per workout and hour.
+        purchasePrice:
+          amountInCents: 123456
+          currency: 'EUR'
+    # Optional, this is useful for gear that Strava doesn't allow you to track
+    # Read how to configure on https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/custom-gear      
+    customGear: []
 zwift:
   # Optional, your Zwift level (1 - 100). Will be used to render your Zwift badge. Leave empty to disable this feature
   level: null
   # Optional, your Zwift racing score (0 - 1000). Will be used to add to your Zwift badge if zwift.level is filled out.
   racingScore: null
 integrations:
+  notifications:
+      # Optional, full URL to ntfy.sh topic (for example https://ntfy.sh/cdd8f660-6b08-4dd8-8b4a-7c4df28642e3). 
+      # This topic will be used to notify you when a new HTML build has run.
+      # Leave empty to disable notifications.
+      ntfyUrl: null
+      # Optional, use when your ntfy.sh instance is password protected
+      ntfyUsername: null
+      ntfyPassword: null
   # All configuration options related to AI integrations.
   # For a comprehensive explanation on how to set up this integration, visit: https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/ai-integration
   ai:
@@ -195,5 +203,24 @@ integrations:
     # agent:
     #   commands:
     #    For a detailed guide on how to configure pre-defined chat commands, visit: https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/ai-integration?id=pre-defining-chat-commands
-
+daemon:
+  # A list of actions that the application runs at regular intervals according to their defined schedule.
+  # Notification-related actions require the integrations.notifications.ntfyUrl setting to be configured.
+  # ⚠️ This configuration only applies if you have set up the daemon container:
+  #   https://statistics-for-strava-docs.robiningelbrecht.be/#/getting-started/installation?id=docker-composeyml
+  cron:
+      # Action name. Allowed values: importAndBuildApp, gearMaintenanceNotification, appUpdateAvailableNotification
+    - action: 'importDataAndBuildApp'
+      # Cron expression specifying when the action should run.
+      # Example: '0 14 * * *' runs every day at 14:00 (2 PM).
+      # See https://crontab.guru/ for help creating or testing cron expressions.
+      expression: '0 14 * * *'
+      # Whether this action should be executed (true/false)
+      enabled: true
+    - action: 'gearMaintenanceNotification'
+      expression: '0 14 * * *'
+      enabled: false
+    - action: 'appUpdateAvailableNotification'
+      expression: '0 14 * * *'
+      enabled: false
 ```

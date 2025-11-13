@@ -40,3 +40,9 @@ services:
 
     App\Infrastructure\FileSystem\PermissionChecker:
         class: App\Tests\Infrastructure\FileSystem\SuccessfulPermissionChecker
+
+    App\Infrastructure\Daemon\Cron\Cron:
+      class: App\Tests\Infrastructure\Daemon\Cron\FakeCron
+
+    App\Infrastructure\Daemon\Daemon:
+      class: App\Tests\Infrastructure\Daemon\FakeDaemon

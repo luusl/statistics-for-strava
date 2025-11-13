@@ -44,7 +44,7 @@ final readonly class ZwiftMap implements LeafletMap
 
     public function getOverlayImageUrl(): string
     {
-        return '/assets/images/maps/zwift-'.$this->mapName.'.jpg';
+        return '/assets/images/maps/zwift-'.$this->mapName.'.webp';
     }
 
     public function getBounds(): array
@@ -98,7 +98,7 @@ final readonly class ZwiftMap implements LeafletMap
             ],
             self::NEW_YORK => [
                 Coordinate::createFromLatAndLng(Latitude::fromString('40.81725'), Longitude::fromString('-74.0227')),
-                Coordinate::createFromLatAndLng(Latitude::fromString('40.58805'), Longitude::fromString('-73.9222')),
+                Coordinate::createFromLatAndLng(Latitude::fromString('40.6385'), Longitude::fromString('-73.9222')),
             ],
             self::PARIS => [
                 Coordinate::createFromLatAndLng(Latitude::fromString('48.9058'), Longitude::fromString('2.2561')),

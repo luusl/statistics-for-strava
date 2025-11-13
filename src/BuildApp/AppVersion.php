@@ -6,9 +6,9 @@ namespace App\BuildApp;
 
 final readonly class AppVersion
 {
-    private const int MAJOR = 3;
-    private const int MINOR = 8;
-    private const int PATCH = 4;
+    private const int MAJOR = 4;
+    private const int MINOR = 0;
+    private const int PATCH = 1;
 
     public static function getSemanticVersion(): string
     {
