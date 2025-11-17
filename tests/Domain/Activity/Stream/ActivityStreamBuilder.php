@@ -15,7 +15,9 @@ final class ActivityStreamBuilder
     private StreamType $streamType;
     private SerializableDateTime $createdOn;
     private array $data;
+    private array $computedFieldsState;
     private array $bestAverages;
+    private array $valueDistribution;
     private ?int $normalizedPower;
 
     private function __construct()
@@ -24,7 +26,9 @@ final class ActivityStreamBuilder
         $this->streamType = StreamType::WATTS;
         $this->createdOn = SerializableDateTime::fromString('2023-10-10');
         $this->data = [];
+        $this->computedFieldsState = [];
         $this->bestAverages = [];
+        $this->valueDistribution = [];
         $this->normalizedPower = null;
     }
 
@@ -40,8 +44,10 @@ final class ActivityStreamBuilder
             streamType: $this->streamType,
             streamData: $this->data,
             createdOn: $this->createdOn,
+            computedFieldsState: $this->computedFieldsState,
+            valueDistribution: $this->valueDistribution,
             bestAverages: $this->bestAverages,
-            normalizedPower: $this->normalizedPower
+            normalizedPower: $this->normalizedPower,
         );
     }
 
@@ -76,6 +82,7 @@ final class ActivityStreamBuilder
     public function withBestAverages(array $bestAverages): self
     {
         $this->bestAverages = $bestAverages;
+        $this->computedFieldsState[ActivityStream::COMPUTED_FIELD_BEST_AVERAGES] = true;
 
         return $this;
     }
@@ -83,6 +90,15 @@ final class ActivityStreamBuilder
     public function withNormalizedPower(int $normalizedPower): self
     {
         $this->normalizedPower = $normalizedPower;
+        $this->computedFieldsState[ActivityStream::COMPUTED_FIELD_NORMALIZED_POWER] = true;
+
+        return $this;
+    }
+
+    public function withValueDistribution(array $valueDistribution): self
+    {
+        $this->valueDistribution = $valueDistribution;
+        $this->computedFieldsState[ActivityStream::COMPUTED_FIELD_VALUE_DISTRIBUTION] = true;
 
         return $this;
     }

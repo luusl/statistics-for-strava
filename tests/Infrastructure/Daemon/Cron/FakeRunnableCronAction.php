@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Infrastructure\Daemon\Cron;
 
-use App\Infrastructure\Console\ConsoleApplicationAware;
 use App\Infrastructure\Daemon\Cron\RunnableCronAction;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class FakeRunnableCronAction implements RunnableCronAction
 {
-    use ConsoleApplicationAware;
-
     public function getId(): string
     {
         return 'fake';
@@ -20,6 +17,11 @@ final class FakeRunnableCronAction implements RunnableCronAction
     public function getMutexTtl(): int
     {
         return 60;
+    }
+
+    public function requiresDatabaseSchemaToBeUpdated(): bool
+    {
+        return true;
     }
 
     public function run(SymfonyStyle $output): void

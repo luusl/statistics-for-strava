@@ -27,7 +27,7 @@ final readonly class PowerDistributionChart
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function build(): array
     {

@@ -23,6 +23,7 @@ class DbalActivityStreamRepositoryTest extends ContainerTestCase
         $this->assertEmpty($stream->getBestAverages());
 
         $stream->updateBestAverages([1 => 1]);
+        $stream->updateValueDistribution([2 => 3.2]);
         $this->activityStreamRepository->update($stream);
 
         $streams = $this->activityStreamRepository->findByActivityId($stream->getActivityId());
@@ -30,6 +31,7 @@ class DbalActivityStreamRepositoryTest extends ContainerTestCase
         $stream = $streams->getFirst();
 
         $this->assertEquals([1 => 1], $stream->getBestAverages());
+        $this->assertEquals([2 => 3.2], $stream->getValueDistribution());
     }
 
     public function testHasOneForActivityAndStreamType(): void
@@ -175,6 +177,26 @@ class DbalActivityStreamRepositoryTest extends ContainerTestCase
             1,
             $this->getConnection()
                 ->executeQuery('SELECT COUNT(*) FROM ActivityStream')->fetchOne()
+        );
+    }
+
+    public function testFindWithoutValueDistributions(): void
+    {
+        $streamOne = ActivityStreamBuilder::fromDefaults()
+            ->withActivityId(ActivityId::fromUnprefixed(1))
+            ->withStreamType(StreamType::WATTS)
+            ->build();
+        $this->activityStreamRepository->add($streamOne);
+        $streamTwo = ActivityStreamBuilder::fromDefaults()
+            ->withActivityId(ActivityId::fromUnprefixed(1))
+            ->withStreamType(StreamType::HEART_RATE)
+            ->withValueDistribution(['lol'])
+            ->build();
+        $this->activityStreamRepository->add($streamTwo);
+
+        $this->assertEquals(
+            ActivityStreams::fromArray([$streamOne]),
+            $this->activityStreamRepository->findWithoutDistributionValues(10)
         );
     }
 

@@ -203,6 +203,7 @@ Other: Other
 PRs: PRs
 'PRs achieved per month': 'PRs achieved per month'
 Pace: Pace
+'Pace distribution': 'Pace distribution'
 'Peak power outputs': 'Peak power outputs'
 'Peak-fresh, race-ready – ideal taper sweet spot': 'Peak-fresh, race-ready – ideal taper sweet spot'
 'Personal Records': 'Personal Records'
@@ -255,6 +256,7 @@ Snowshoe: Snowshoe
 Soccer: Voetbal
 Socials: Socials
 Speed: Snelheid
+'Speed distribution': 'Speed distribution'
 Splits: Splits
 Squash: Squash
 'Stair Stepper': 'Stair Stepper'
@@ -326,7 +328,9 @@ Wednesday: Woensdag
 'Weekly TRIMP': 'Weekly TRIMP'
 'Weekly goals': 'Weekly goals'
 'Weekly stats': 'Weekelijkse stats'
+Weight: Weight
 'Weight Training': Gewichttraining
+'Weight history': 'Weight history'
 Wheelchair: Rolstoel
 'When power metrics and FTP are available, these metrics are used instead. This formula means that riding for an hour at your FTP results in a score of 100, which we consider "high intensity"': 'Wanneer wattages en FTP beschikbaar zijn, worden in plaats daarvan deze meetgegevens gebruikt. Deze formule betekent dat een uur lang rijden op je FTP resulteert in een score van 100, wat we beschouwen als "hoge intensiteit"'
 'Wind Surf': Windsurfen

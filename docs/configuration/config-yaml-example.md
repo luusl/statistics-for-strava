@@ -160,6 +160,11 @@ metrics:
 gear:
     # Optional, Used to enrich gear with data that cannot be configured in Strava.  
     stravaGear:
+      # The Strava gear ID.
+      # ⚠️ Do NOT copy the gear ID from the Strava URL, that value will not work.
+      # Instead, open the gear details popup (click the question-mark icon in the top-right corner of the gear page) 
+      # and copy the gear ID shown there.
+      # https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/gear-maintenance?id=strava-gear-ids
       - gearId: 'g12337767'
         # Used to calculate the relative cost per workout and hour.
         purchasePrice:
@@ -209,7 +214,7 @@ daemon:
   # ⚠️ This configuration only applies if you have set up the daemon container:
   #   https://statistics-for-strava-docs.robiningelbrecht.be/#/getting-started/installation?id=docker-composeyml
   cron:
-      # Action name. Allowed values: importAndBuildApp, gearMaintenanceNotification, appUpdateAvailableNotification
+      # Action name. Allowed values: importDataAndBuildApp, gearMaintenanceNotification, appUpdateAvailableNotification
     - action: 'importDataAndBuildApp'
       # Cron expression specifying when the action should run.
       # Example: '0 14 * * *' runs every day at 14:00 (2 PM).

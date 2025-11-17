@@ -16,7 +16,6 @@ use App\Tests\SpyOutput;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use Spatie\Snapshots\MatchesSnapshots;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -42,7 +41,6 @@ class ImportStravaDataCommandHandlerTest extends ContainerTestCase
 
         $output = new SpyOutput();
         $this->importStravaDataCommandHandler->handle(new ImportStravaData(
-            consoleApplication: new Application('mock', 'v1.0.0'),
             output: new SymfonyStyle(new StringInput('input'), $output),
         ));
         $this->assertMatchesTextSnapshot(str_replace(' ', '', $output));
@@ -70,7 +68,6 @@ class ImportStravaDataCommandHandlerTest extends ContainerTestCase
 
         $output = new SpyOutput();
         $this->importStravaDataCommandHandler->handle(new ImportStravaData(
-            consoleApplication: new Application('mock', 'v1.0.0'),
             output: new SymfonyStyle(new StringInput('input'), $output),
         ));
         $this->assertMatchesTextSnapshot(str_replace(' ', '', $output));

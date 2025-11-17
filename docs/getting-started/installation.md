@@ -38,8 +38,13 @@ services:
       - ./storage/database:/var/www/storage/database
       - ./storage/files:/var/www/storage/files
     env_file: ./.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
+      start_period: 60s
     ports:
       - 8080:8080
+    networks:
+      - statistics-for-strava-network
 
   # ⚠️ This container is optional, it is not required to run Statistics for Strava.
   # Its purpose is to handle recurring background tasks, such as:
@@ -57,12 +62,16 @@ services:
     restart: unless-stopped
     volumes:
       - ./config:/var/www/config/app
+      - ./build:/var/www/build
       - ./storage/database:/var/www/storage/database
       - ./storage/files:/var/www/storage/files
     env_file: ./.env
     entrypoint: ['bin/console', 'app:daemon:run']
     networks:
       - statistics-for-strava-network
+
+networks:
+  statistics-for-strava-network:
 ```
 
 ## .env

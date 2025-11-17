@@ -94,28 +94,6 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
         }
     }
 
-    /**
-     * @return array<int, int>
-     */
-    public function findTimeInSecondsPerWattageForActivity(ActivityId $activityId): array
-    {
-        if (!$this->activityStreamRepository->hasOneForActivityAndStreamType(
-            activityId: $activityId,
-            streamType: StreamType::WATTS
-        )) {
-            return [];
-        }
-
-        $stream = $this->activityStreamRepository->findOneByActivityAndStreamType(
-            activityId: $activityId,
-            streamType: StreamType::WATTS
-        );
-        $powerStreamForActivity = array_count_values(array_filter($stream->getData(), fn (mixed $item): bool => !is_null($item)));
-        ksort($powerStreamForActivity);
-
-        return $powerStreamForActivity;
-    }
-
     public function findBestForSportTypes(SportTypes $sportTypes): PowerOutputs
     {
         return $this->buildBestFor(
@@ -172,6 +150,8 @@ final class StreamBasedActivityPowerRepository implements ActivityPowerRepositor
                 streamType: StreamType::from($result['streamType']),
                 streamData: Json::decode($result['data']),
                 createdOn: SerializableDateTime::fromString($result['createdOn']),
+                computedFieldsState: Json::decode($result['computedFieldsState'] ?? '[]'),
+                valueDistribution: Json::decode($result['valueDistribution'] ?? '[]'),
                 bestAverages: Json::decode($result['bestAverages'] ?? '[]'),
                 normalizedPower: $result['normalizedPower'] ?? null
             );

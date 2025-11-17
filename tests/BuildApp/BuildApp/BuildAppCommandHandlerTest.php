@@ -23,7 +23,6 @@ use App\Tests\Infrastructure\Time\Clock\PausedClock;
 use App\Tests\SpyOutput;
 use PHPUnit\Framework\MockObject\MockObject;
 use Spatie\Snapshots\MatchesSnapshots;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -56,7 +55,6 @@ class BuildAppCommandHandlerTest extends ContainerTestCase
 
         $output = new SpyOutput();
         $this->buildAppCommandHandler->handle(new BuildApp(
-            consoleApplication: new Application('mock', 'v1.0.0'),
             output: new SymfonyStyle(new StringInput('input'), $output),
         ));
         $this->assertMatchesTextSnapshot(str_replace(' ', '', $output));
@@ -72,7 +70,6 @@ class BuildAppCommandHandlerTest extends ContainerTestCase
 
         $output = new SpyOutput();
         $this->buildAppCommandHandler->handle(new BuildApp(
-            consoleApplication: new Application('mock', 'v1.0.0'),
             output: new SymfonyStyle(new StringInput('input'), $output),
         ));
 
@@ -88,7 +85,6 @@ class BuildAppCommandHandlerTest extends ContainerTestCase
 
         $output = new SpyOutput();
         $this->buildAppCommandHandler->handle(new BuildApp(
-            consoleApplication: new Application('mock', 'v1.0.0'),
             output: new SymfonyStyle(new StringInput('input'), $output),
         ));
 

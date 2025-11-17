@@ -7,7 +7,6 @@ namespace App\Tests\Infrastructure\Doctrine\Migrations;
 use App\Infrastructure\Doctrine\Migrations\MigrationRunner;
 use Doctrine\DBAL\Driver\SQLite3\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class VoidMigrationRunner implements MigrationRunner
@@ -19,7 +18,7 @@ final class VoidMigrationRunner implements MigrationRunner
         $this->throwOnNextRun = true;
     }
 
-    public function run(Application $application, OutputInterface $output): void
+    public function run(OutputInterface $output): void
     {
         if ($this->throwOnNextRun) {
             throw new ConnectionException(new Exception(new \RuntimeException()), null);
@@ -27,7 +26,7 @@ final class VoidMigrationRunner implements MigrationRunner
         $this->throwOnNextRun = false;
     }
 
-    public function isAtLatestVersion(Application $application): bool
+    public function isAtLatestVersion(): bool
     {
         if ($this->throwOnNextRun) {
             throw new ConnectionException(new Exception('test'), null);

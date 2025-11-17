@@ -203,6 +203,7 @@ Other: Andere
 PRs: PRs
 'PRs achieved per month': 'PRs erreicht pro Monat'
 Pace: Pace
+'Pace distribution': 'Pace distribution'
 'Peak power outputs': Spitzenleistungen
 'Peak-fresh, race-ready – ideal taper sweet spot': 'In Top-Form, wettkampftauglich - Idealer Taper-Sweetspot'
 'Personal Records': 'Persönliche Bestzeiten'
@@ -255,6 +256,7 @@ Snowshoe: Schneeschuhwandern
 Soccer: Fußball
 Socials: 'Soziale Medien'
 Speed: Geschwindigkeit
+'Speed distribution': 'Speed distribution'
 Splits: Zwischenzeiten
 Squash: Squash
 'Stair Stepper': Stufen-Stepper
@@ -326,7 +328,9 @@ Wednesday: Mittwoch
 'Weekly TRIMP': 'Wöchentlicher TRIMP'
 'Weekly goals': 'Weekly goals'
 'Weekly stats': 'Wöchentliche Statistiken'
+Weight: Weight
 'Weight Training': Gewichtstraining
+'Weight history': 'Weight history'
 Wheelchair: Rollstuhl
 'When power metrics and FTP are available, these metrics are used instead. This formula means that riding for an hour at your FTP results in a score of 100, which we consider "high intensity"': 'Wenn Leistungsmetriken und FTP verfügbar sind, werden diese stattdessen verwendet. Diese Formel bedeutet, dass eine Stunde Fahren mit Ihrer FTP zu einer Punktzahl von 100 führt, was wir als "hohe Intensität" betrachten'
 'Wind Surf': Windsurfen

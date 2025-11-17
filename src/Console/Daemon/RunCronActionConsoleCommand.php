@@ -31,24 +31,19 @@ final class RunCronActionConsoleCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $runnableCronActionId = $input->getArgument('cronActionId');
-        /** @var \Symfony\Component\Console\Application $consoleApplication */
-        $consoleApplication = $this->getApplication();
 
         try {
-            $databaseIsAtLatestVersion = $this->migrationRunner->isAtLatestVersion($consoleApplication);
+            $databaseIsAtLatestVersion = $this->migrationRunner->isAtLatestVersion();
         } catch (ConnectionException) {
             $databaseIsAtLatestVersion = false;
         }
 
-        if (!$databaseIsAtLatestVersion) {
+        $runnable = $this->cron->getRunnable($runnableCronActionId);
+
+        if ($runnable->requiresDatabaseSchemaToBeUpdated() && !$databaseIsAtLatestVersion) {
             $output->writeln('<error>Your database is not up to date with the migration schema. Run the import command.</error>');
 
             return Command::SUCCESS;
-        }
-
-        $runnable = $this->cron->getRunnable($runnableCronActionId);
-        if (method_exists($runnable, 'setConsoleApplication')) {
-            $runnable->setConsoleApplication($consoleApplication);
         }
 
         $runnable->run(new SymfonyStyle($input, $output));
