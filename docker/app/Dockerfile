@@ -55,8 +55,8 @@ RUN if [ "${TARGETARCH}" = "arm64" ]; then \
       curl -L -o shoutrrr.tar.gz "https://github.com/nicholas-fedor/shoutrrr/releases/download/v$SHOUTRRR_VERSION/shoutrrr_linux_amd64_${SHOUTRRR_VERSION}.tar.gz"; \
     elif [ "${TARGETARCH}" = "armv7" ]; then \
       curl -L -o shoutrrr.tar.gz "https://github.com/nicholas-fedor/shoutrrr/releases/download/v$SHOUTRRR_VERSION/shoutrrr_linux_armhf_${SHOUTRRR_VERSION}.tar.gz"; \
-	else \
-	  echo "Error: Unsupported TARGETARCH '${TARGETARCH}'" >&2 && exit 1 \
+    else \
+      echo "Error: Unsupported TARGETARCH '${TARGETARCH}'" >&2 && exit 1; \
     fi
 RUN tar -xzf shoutrrr.tar.gz
 RUN chmod +x shoutrrr
