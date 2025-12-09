@@ -8,6 +8,7 @@ use App\Domain\Activity\ActivityId;
 use App\Domain\Activity\SportType\SportType;
 use App\Domain\Activity\WorkoutType;
 use App\Domain\Integration\Geocoding\Nominatim\Location;
+use App\Infrastructure\Serialization\Escape;
 use App\Infrastructure\Time\Format\DateAndTimeFormat;
 use App\Infrastructure\ValueObject\Measurement\Length\Kilometer;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
@@ -132,10 +133,10 @@ final class Route implements \JsonSerializable
             'id' => $this->getActivityId(),
             'startDate' => $startDate,
             'distance' => $distance,
-            'name' => $this->getName(),
+            'name' => Escape::forJsonEncode($this->getName()),
             'location' => [
                 'countryCode' => $this->getLocation()->getCountryCode(),
-                'state' => $state ? str_replace(['"', '\''], '', $state) : null, // Fix for ISSUE-287
+                'state' => $state ? Escape::forJsonEncode($state) : null,
             ],
             'filterables' => [
                 'sportType' => $this->getSportType(),

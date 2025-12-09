@@ -1,3 +1,36 @@
+# [v4.2.3](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.2.3) - 2025-12-09
+
+## What's Changed
+* Update messages+intl-icu.de_DE.yaml by @daydreamer77 in https://github.com/robiningelbrecht/statistics-for-strava/pull/1510
+* ISSUE #1513: Add Shoutrrr notifications to troubleshooting section by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1514
+* ISSUE #1515: Mutex crashes when migrations have never run by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1518
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.2.2...v4.2.3
+
+# [v4.2.2](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.2.2) - 2025-12-08
+
+## What's Changed
+* ISSUE #1496: Heatmap show full name on hover activity name by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1497
+* ISSUE #1498: Fix double quotes in heatmap route names by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1500
+* ISSUE #1499: Fix BC bug for FtpHistory by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1501
+* ISSUE #1504: Replace Mutex lock names with enums by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1505
+* ISSUE #1503: Fix build time indication in notifications by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1506
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.2.1...v4.2.2
+
+# [v4.2.1](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.2.1) - 2025-12-06
+
+## What's Changed
+* Update messages+intl-icu.de_DE.yaml by @effectpears in https://github.com/robiningelbrecht/statistics-for-strava/pull/1481
+* ISSUE #1482: Upgrade to Symfony 8 by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1483
+* ISSUE #1484: Show route info on heatmap by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1485
+* ISSUE #1473: Update to stable xdebug version by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1487
+* ISSUE #1486: Add 50k, 100k, and 100miles to running best efforts by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1489
+* ISSUE #1488: Add km/time/distance left to the training goals widget by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1490
+* ISSUE #1493: New Shoutrrr release available: v0.13.0 by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1494
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.2.0...v4.2.1
+
 # [v4.2.0](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.2.0) - 2025-12-01
 
 > [!WARNING]  

@@ -68,7 +68,7 @@ final class Activity implements SupportsAITooling
         #[ORM\Column(type: 'string')]
         private SportType $sportType,
         #[ORM\Column(type: 'string', nullable: true)]
-        private WorldType $worldType,
+        private readonly WorldType $worldType,
         #[ORM\Column(type: 'string')]
         private string $name,
         #[ORM\Column(type: 'string', nullable: true)]
@@ -410,7 +410,7 @@ final class Activity implements SupportsAITooling
 
     public function getSanitizedName(): string
     {
-        return Escape::htmlSpecialChars($this->getName());
+        return Escape::forJsonEncode($this->getName());
     }
 
     public function updateName(string $name): self

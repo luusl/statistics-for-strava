@@ -1,0 +1,10 @@
+<fg=black;bg=green>StatisticsforStravav4.2.3</>
+
+Runtime:PHP8.5.0(cli)Symfony8.0.2Linux
+Configurationfiles:
+config.yaml
+configathlete.yaml
+configimport.yaml
+gearmaintenance.yaml
+
+<info>Time:10s,Memory:45MB</info>

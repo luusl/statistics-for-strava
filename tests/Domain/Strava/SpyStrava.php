@@ -16,6 +16,7 @@ use App\Domain\Strava\StravaClientSecret;
 use App\Domain\Strava\StravaRefreshToken;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\String\KernelProjectDir;
+use App\Infrastructure\ValueObject\String\Url;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Tests\Infrastructure\Time\Clock\PausedClock;
 use App\Tests\Infrastructure\Time\Sleep\NullSleep;
@@ -32,7 +33,7 @@ class SpyStrava extends Strava
     private int $numberOfCallsExecuted = 0;
     private int $maxNumberOfCallsBeforeTriggering429 = 0;
     private readonly array $activities;
-    private bool $triggerExceptionOnNextImageDownload = false;
+    private bool $triggerExceptionOnNextCall = false;
     private bool $triggerExceptionOnNextActivityCall = false;
 
     public function __construct(
@@ -67,7 +68,7 @@ class SpyStrava extends Strava
 
     public function triggerExceptionOnNextCall(): void
     {
-        $this->triggerExceptionOnNextImageDownload = true;
+        $this->triggerExceptionOnNextCall = true;
     }
 
     public function triggerExceptionOnNextActivityCall(): void
@@ -141,6 +142,11 @@ class SpyStrava extends Strava
         ++$this->numberOfCallsExecuted;
         $this->throw429IfMaxNumberOfCallsIsExceeded();
 
+        if ($this->triggerExceptionOnNextCall) {
+            $this->triggerExceptionOnNextCall = false;
+            throw new RequestException(message: 'The error', request: new Request('GET', 'uri'), response: new Response(500, [], Json::encode(['error' => 'The error'])));
+        }
+
         if (ActivityId::fromUnprefixed('5') == $activityId) {
             return [
                 [
@@ -209,6 +215,38 @@ class SpyStrava extends Strava
     }
 
     #[\Override]
+    public function getWebhookSubscription(): array
+    {
+        return [
+            [
+                'id' => 'le-id',
+                'application_id' => 'le-application-id',
+                'callback_url' => 'le-url',
+                'created_at' => '2025-01-01',
+                'updated_at' => '2025-01-01',
+            ],
+            [
+                'id' => 'le-id-2',
+                'application_id' => 'le-application-id-2',
+                'callback_url' => 'le-url-2',
+                'created_at' => '2025-01-01',
+                'updated_at' => '2025-01-01',
+            ],
+        ];
+    }
+
+    #[\Override]
+    public function createWebhookSubscription(Url $callbackUrl, string $verifyToken): array
+    {
+        return ['id' => 'le-id'];
+    }
+
+    #[\Override]
+    public function deleteWebhookSubscription(string $subscriptionId): void
+    {
+    }
+
+    #[\Override]
     public function getChallengesOnPublicProfile(string $athleteId): array
     {
         ++$this->numberOfCallsExecuted;
@@ -251,7 +289,7 @@ class SpyStrava extends Strava
     #[\Override]
     public function downloadImage(string $uri): string
     {
-        if ($this->triggerExceptionOnNextImageDownload) {
+        if ($this->triggerExceptionOnNextCall) {
             throw new \RuntimeException('WAW ERROR');
         }
         ++$this->numberOfCallsExecuted;

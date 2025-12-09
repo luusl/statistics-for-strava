@@ -13,11 +13,11 @@
   - [Custom gear](configuration/custom-gear.md "Statistics for Strava | Custom gear")
   - [Gear maintenance](configuration/gear-maintenance.md "Statistics for Strava | Gear maintenance")
   - [AI integration](configuration/ai-integration.md "Statistics for Strava | AI integration")
-  - [Full example](configuration/full-configuration-example.md "Statistics for Strava | Full example")
   
 - Troubleshooting
 
   - [Strava API errors](troubleshooting/strava-api-errors.md "Statistics for Strava | Strava API errors")
+  - [Shoutrrr notifications](troubleshooting/shoutrrr-notifications.md "Statistics for Strava | Shoutrrr notifications")
   - [FAQ](troubleshooting/faq.md "Statistics for Strava | FAQ")
   - [Logs](troubleshooting/logs.md "Statistics for Strava | Logs")
 
