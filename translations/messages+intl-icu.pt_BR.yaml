@@ -57,6 +57,7 @@ Compare: Compare
 'Compare to': 'Compare to'
 'Congrats! You achieved personal bests during this activity.': 'Congrats! You achieved personal bests during this activity.'
 Crossfit: Crossfit
+'Current streaks': 'Current streaks'
 'Custom gear disabled': 'Custom gear disabled'
 Cycling: Cycling
 'Daily TRIMP': 'Daily TRIMP'
@@ -128,6 +129,7 @@ High: Alta
 'High risk - reduce volume': 'High risk - reduce volume'
 Hikes: Caminhadas
 History: Histórico
+'History chart': 'History chart'
 'Ice Skate': 'Patinação no Gelo'
 Id: Id
 'Image "{imgSrc}" is referenced in your maintenance config file, but was not found in "storage/gear-maintenance"': 'A imagem "{imgSrc}" está referenciada no seu arquivo de configuração de manutenção, mas não foi encontrada em "storage/gear-maintenance"'

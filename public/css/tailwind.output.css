@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -1096,6 +1096,9 @@
   .me-3 {
     margin-inline-end: calc(var(--spacing) * 3);
   }
+  .mt-1 {
+    margin-top: calc(var(--spacing) * 1);
+  }
   .mt-1\.5 {
     margin-top: calc(var(--spacing) * 1.5);
   }
@@ -1692,6 +1695,9 @@
   }
   .max-h-\[calc\(100vh-285px\)\] {
     max-height: calc(100vh - 285px);
+  }
+  .max-h-\[calc\(100vh-585px\)\] {
+    max-height: calc(100vh - 585px);
   }
   .max-h-full {
     max-height: 100%;
@@ -2330,6 +2336,10 @@
     border-top-style: var(--tw-border-style);
     border-top-width: 0px;
   }
+  .border-t-4 {
+    border-top-style: var(--tw-border-style);
+    border-top-width: 4px;
+  }
   .border-r {
     border-right-style: var(--tw-border-style);
     border-right-width: 1px;
@@ -2528,6 +2538,9 @@
   }
   .border-yellow-300 {
     border-color: var(--color-yellow-300);
+  }
+  .border-t-strava-orange {
+    border-top-color: var(--color-strava-orange);
   }
   .border-l-blue-600 {
     border-left-color: var(--color-blue-600);
