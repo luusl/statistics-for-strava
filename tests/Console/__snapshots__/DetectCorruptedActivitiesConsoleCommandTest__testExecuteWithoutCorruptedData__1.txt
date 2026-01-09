@@ -1,7 +1,5 @@
 
-StatisticsforStravav4.3.5|DAEMON
-
-Startedon0811202514:47:03
+StatisticsforStravav4.3.5
 
 
 
@@ -15,5 +13,6 @@ gearmaintenance.yaml
 
 
 
-Cronconfigured
-Periodictimeradded
+Scanningactivities...
+Noactivitieswithcorrupteddatafound
+

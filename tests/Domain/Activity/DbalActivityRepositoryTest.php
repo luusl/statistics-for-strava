@@ -6,6 +6,7 @@ use App\Domain\Activity\Activity;
 use App\Domain\Activity\ActivityId;
 use App\Domain\Activity\ActivityIds;
 use App\Domain\Activity\ActivityRepository;
+use App\Domain\Activity\ActivitySummary;
 use App\Domain\Activity\ActivityType;
 use App\Domain\Activity\ActivityWithRawData;
 use App\Domain\Activity\ActivityWithRawDataRepository;
@@ -44,10 +45,35 @@ class DbalActivityRepositoryTest extends ContainerTestCase
         );
     }
 
-    public function testItShouldThrowWhenNotFound(): void
+    public function testFindItShouldThrowWhenNotFound(): void
     {
         $this->expectException(EntityNotFound::class);
         $this->activityRepository->find(ActivityId::fromUnprefixed(1));
+    }
+
+    public function testItShouldSaveAndFindSummary(): void
+    {
+        $activity = ActivityBuilder::fromDefaults()->build();
+
+        $this->activityWithRawDataRepository->add(ActivityWithRawData::fromState(
+            $activity,
+            ['raw' => 'data']
+        ));
+
+        $persisted = $this->activityRepository->findSummary($activity->getId());
+        $this->assertEquals(
+            ActivitySummary::create(
+                name: $activity->getName(),
+                startDateTime: $activity->getStartDate(),
+            ),
+            $persisted,
+        );
+    }
+
+    public function testFindSummaryItShouldThrowWhenNotFound(): void
+    {
+        $this->expectException(EntityNotFound::class);
+        $this->activityRepository->findSummary(ActivityId::fromUnprefixed(1));
     }
 
     public function testFindAll(): void
