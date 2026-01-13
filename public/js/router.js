@@ -131,7 +131,19 @@ export default class Router {
     }
 
     currentRoute() {
-        return location.pathname.replace('/', '') ? location.pathname : this.defaultRoute;
+        // Get configured base path (e.g. "/subpath") or empty string
+        const basePath = (window.statisticsForStrava && window.statisticsForStrava.appUrl && window.statisticsForStrava.appUrl.basePath) || '';
+        const normalizedBase = basePath.replace(/\/+$/, ''); // remove trailing slash if any
+        const pathname = location.pathname;
+
+        // If the user is at the site root ("/") or exactly at the app base path ("/subpath" or "/subpath/"),
+        // return basePath + default route (e.g. "/subpath/dashboard" or "/dashboard").
+        if (pathname === '/' || pathname === '' || pathname === normalizedBase || pathname === normalizedBase + '/') {
+            return normalizedBase + this.defaultRoute;
+        }
+
+        // Otherwise use the full pathname as the route
+        return pathname;
     }
 
     boot() {
