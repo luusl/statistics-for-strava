@@ -62,6 +62,9 @@ phpunit-with-coverage-report:
 phpunit-html-coverage:
 	@make phpunit arg="--coverage-html var/coverage"
 
+paratest:
+	@make dcr cmd="vendor/bin/paratest --order-by=random --processes=auto $(arg)"
+
 phpstan:
 	@make dcr cmd="vendor/bin/phpstan --memory-limit=1G $(arg)"
 
