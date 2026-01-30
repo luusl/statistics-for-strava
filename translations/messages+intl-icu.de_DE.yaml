@@ -48,7 +48,7 @@ Canoeing: Kanufahren
 'Challenge consistency': Herausforderungskonstanz
 Challenges: Herausforderungen
 'Chronic Training Load (Fitness) - 42-day exponentially weighted average of your daily training load. Represents long-term training adaptation.': 'Langfristige Trainingsbelastung (Fitness) - 42 Tage exponentiell gewichteter Durchschnitt deiner täglichen Trainingsbelastung. Stellt die langfristige Trainingsentwicklung dar.'
-'Clear chat': 'Clear chat'
+'Clear chat': 'Chat löschen'
 'Close modal': 'Modalen Dialog schließen'
 'Collapse sidebar': 'Seitenleiste einklappen'
 Commutes: Pendeln
@@ -56,9 +56,9 @@ Commutes: Pendeln
 Compare: Vergleich
 'Compare to': 'Vergleich zu'
 'Congrats! You achieved personal bests during this activity.': 'Herzlichen Glückwunsch! Du hast persönliche Bestleistungen während dieser Aktivität erreicht.'
-Consistency: Consistency
+Consistency: Konstanz
 Crossfit: Crossfit
-'Current streaks': 'Current streaks'
+'Current streaks': 'Aktuelle Serien'
 'Custom gear disabled': 'Eigene Ausrüstung deaktiviert'
 Cycling: Radfahren
 'Daily TRIMP': 'Täglicher TRIMP'
@@ -68,7 +68,7 @@ Date: Datum
 'Days needed': 'Benötigte Tage'
 'Daytime stats': Tageszeitstatistiken
 Dec: Dez
-Density: Density
+Density: Dichte
 'Detailed instructions are available in the documentation on': 'Detaillierte Anweisungen findest du in'
 Details: Details
 Device: Gerät
@@ -78,7 +78,7 @@ Distance: Distanz
 'Distance over time per gear': 'Distanz über Zeit pro Ausrüstung'
 'Distance per month per gear': 'Distanz pro Monat pro Ausrüstung'
 Distribution: Verteilung
-Duration: Duration
+Duration: Dauer
 'E-Bike Rides': E-Bike-Radfahrten
 'E-Mountain Bike Rides': E-Mountainbike-Fahrten
 Eddington: Eddington
@@ -133,20 +133,20 @@ High: Hoch
 'High risk - reduce volume': 'Hohes Risiko - reduziere Umfang'
 Hikes: Wanderungen
 History: Verlauf
-'History chart': 'History chart'
-'How diverse is your training': 'How diverse is your training'
-'How hard is your typical training session': 'How hard is your typical training session'
-'How long is your typical training session': 'How long is your typical training session'
-'How much do you train on average per week': 'How much do you train on average per week'
-'How much training you do in total on days you train.': 'How much training you do in total on days you train.'
-'How often do you train': 'How often do you train'
+'History chart': 'Verlaufsdiagramm'
+'How diverse is your training': 'Wie abwechslungsreich ist dein Training'
+'How hard is your typical training session': 'Wie anstrengend ist dein typisches Training'
+'How long is your typical training session': 'Wie lange dauert deine typische Trainingseinheit'
+'How much do you train on average per week': 'Wie viel trainierst du durchschnittlich pro Woche'
+'How much training you do in total on days you train.': 'Wie viel trainierst du insgesamt an den Tagen, an denen du trainierst.'
+'How often do you train': 'Wie oft trainierst du'
 'Ice Skate': Eislaufen
 Id: Id
 'Image "{imgSrc}" is referenced in your maintenance config file, but was not found in "storage/gear-maintenance"': 'Das Bild "{imgSrc}" wurde in deiner maintenance config Datei referenziert, aber es wurde nicht unter "storage/gear-maintenance" gefunden'
 "In that time, I’ve covered {totalDistance}, that's {numberOfTripsAroundTheWorld} trips around the world 🌍 or {numberOfTripsToTheMoonPercent}% of the way to the moon 🌕, and climbed an elevation of {totalElevation} which is {timesMountEverest} times Mount Everest 🏔. All up that's {totalTimeRecorded} of moving time 🎉.": 'In dieser Zeit habe ich {totalDistance} zurückgelegt – das entspricht {numberOfTripsAroundTheWorld} Erdumrundungen 🌍 oder {numberOfTripsToTheMoonPercent}% des Weges zum Mond 🌕. Und ich habe {totalElevation} Höhenmeter überwunden, was {timesMountEverest} Mal dem Mount Everest entspricht 🏔. Insgesamt sind das {totalTimeRecorded} reine Bewegungszeit 🎉.'
 'Individual thresholds vary based on fitness level.': 'Individuelle Schwellenwerte variieren je nach Fitnesslevel.'
 'Inline Skate': Inlineskaten
-Intensity: Intensity
+Intensity: Intensität
 'It looks like no valid gear is attached to any of the components. Please check your config file.': 'Es sieht so aus, als wäre keine gültige Ausrüstung an deinen Komponanten angebracht. Bitte überprüfe die config Datei.'
 Jan: Jan
 Jul: Jul
