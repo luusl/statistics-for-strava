@@ -19,7 +19,7 @@ final class EnrichedActivities
 {
     /** @var array<string, Activity> */
     public static array $cachedActivities = [];
-    /** @var array<string, Activities> */
+    /** @var array<string, string[]> */
     public static array $cachedActivitiesPerActivityType;
 
     public function __construct(
@@ -43,6 +43,12 @@ final class EnrichedActivities
         $maintenanceTags = $this->gearMaintenanceConfig->getAllMaintenanceTags();
         $customGearTags = $this->customGearConfig->getAllGearTags();
         $gears = $this->gearRepository->findAll();
+
+        $activityTypes = $this->activityTypeRepository->findAll();
+
+        foreach ($activityTypes as $activityType) {
+            self::$cachedActivitiesPerActivityType[$activityType->value] = [];
+        }
 
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('activityId')
@@ -82,6 +88,7 @@ final class EnrichedActivities
             }
 
             self::$cachedActivities[(string) $activity->getId()] = $activity;
+            self::$cachedActivitiesPerActivityType[$activity->getSportType()->getActivityType()->value][] = (string) $activity->getId();
         }
     }
 
@@ -128,12 +135,7 @@ final class EnrichedActivities
 
         $activityIds = $queryBuilder->executeQuery()->fetchFirstColumn();
 
-        $activities = Activities::empty();
-        foreach ($activityIds as $activityId) {
-            $activities->add(self::$cachedActivities[(string) $activityId]);
-        }
-
-        return $activities;
+        return Activities::fromArray($this->resolveIds($activityIds));
     }
 
     public function findBySportTypes(SportTypes $sportTypes): Activities
@@ -153,12 +155,7 @@ final class EnrichedActivities
 
         $activityIds = $queryBuilder->executeQuery()->fetchFirstColumn();
 
-        $activities = Activities::empty();
-        foreach ($activityIds as $activityId) {
-            $activities->add(self::$cachedActivities[(string) $activityId]);
-        }
-
-        return $activities;
+        return Activities::fromArray($this->resolveIds($activityIds));
     }
 
     /**
@@ -166,17 +163,23 @@ final class EnrichedActivities
      */
     public function findGroupedByActivityType(): array
     {
-        if (empty(self::$cachedActivitiesPerActivityType)) {
-            $this->enrichAll();
-            $activityTypes = $this->activityTypeRepository->findAll();
-            $allActivities = $this->findAll();
+        $this->enrichAll();
 
-            /** @var ActivityType $activityType */
-            foreach ($activityTypes as $activityType) {
-                self::$cachedActivitiesPerActivityType[$activityType->value] = $allActivities->filterOnActivityType($activityType);
-            }
+        $activitiesPerActivityType = [];
+        foreach (self::$cachedActivitiesPerActivityType as $activityType => $ids) {
+            $activitiesPerActivityType[$activityType] = Activities::fromArray($this->resolveIds($ids));
         }
 
-        return self::$cachedActivitiesPerActivityType;
+        return $activitiesPerActivityType;
+    }
+
+    /**
+     * @param string[] $ids
+     *
+     * @return Activity[]
+     */
+    private function resolveIds(array $ids): array
+    {
+        return array_map(fn (string $id) => self::$cachedActivities[$id], $ids);
     }
 }
