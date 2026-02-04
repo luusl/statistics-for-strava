@@ -11,6 +11,9 @@
 '> 1.3: Increased injury risk': '> 1.3: Ökad skaderisk'
 '> 2.0: High monotony, increased risk': '> 2.0: Hög enformighet, ökad risk'
 '>+25: Possible detraining': '>+25: Möjlig prestationsminskning'
+'A 6-hour week scores higher than a 5-hour week.': 'A 6-hour week scores higher than a 5-hour week.'
+'A high intensity score means a larger share of your training is hard rather than easy.': 'A high intensity score means a larger share of your training is hard rather than easy.'
+'A high score means you concentrate more training into fewer, heavier days.': 'A high score means you concentrate more training into fewer, heavier days.'
 'A:C Ratio': 'A:C Förhållande'
 'ATL (Fatigue)': 'ATL (Utmattning)'
 'Active days': 'Aktiva dagar'
@@ -78,6 +81,7 @@ Distance: Distans
 'Distance over time per gear': 'Distans över tid per utrustning'
 'Distance per month per gear': 'Distans per månad per utrustning'
 Distribution: Fördelning
+'Doing a mix of cycling, running, swimming, and strength work increases your variety score.': 'Doing a mix of cycling, running, swimming, and strength work increases your variety score.'
 Duration: Duration
 'E-Bike Rides': 'E-Cykel Turer'
 'E-Mountain Bike Rides': 'E-Mountain Bike Turer'
@@ -157,6 +161,7 @@ Kayaking: Kayak
 Lap: Varv
 Laps: Varv
 'Last 7 days training load': 'Belastning de senaste 7 dagarna'
+'Last activity': 'Last activity'
 'Last effort': 'Senaste prestation'
 'Last maintenance': 'Senast underhållet'
 'Last {numberOfDays} days': 'Senaste {numberOfDays} dagarna'
@@ -269,6 +274,7 @@ Snowboard: Snowboard
 Snowshoe: Snöskor
 Soccer: Fotboll
 Socials: 'Sociala medier'
+'Someone who regularly trains for 90 minutes will score higher than someone doing mostly short sessions.': 'Someone who regularly trains for 90 minutes will score higher than someone doing mostly short sessions.'
 Speed: Fart
 'Speed distribution': 'Speed distribution'
 Splits: Delar
@@ -313,6 +319,7 @@ To: Till
 'Total hours spent per sport type': 'Totala antalet timmar per sport'
 'Total kudos and comments received': 'Totala antalet mottagna kudos och kommentarer'
 'Trail Runs': Stiglöpning
+'Training 4–5 days every week scores higher than doing everything in one or two days.': 'Training 4–5 days every week scores higher than doing everything in one or two days.'
 'Training Impulse - Training load metric that accounts for intensity and duration.': 'Träningsimpuls - Träningsbelastningsmått som tar hänsyn till intensitet och varaktighet.'
 'Training Load Analysis': 'Analys av träningsbelastning'
 'Training Load Analysis (6 week history)': 'Analys av träningsbelastning (6 veckors historik)'

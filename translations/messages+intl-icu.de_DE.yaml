@@ -11,6 +11,9 @@
 '> 1.3: Increased injury risk': '> 1.3: Erhöhtes Verletzungsrisiko'
 '> 2.0: High monotony, increased risk': '> 2.0: Hohe Monotonie, erhöhtes Risiko'
 '>+25: Possible detraining': '>+25: Möglicher Leistungsabbau durch Trainingspause'
+'A 6-hour week scores higher than a 5-hour week.': 'Eine 6-Stunden-Woche erzielt einen höheren Wert als eine 5-Stunden-Woche.'
+'A high intensity score means a larger share of your training is hard rather than easy.': 'Ein hoher Intensitätswert bedeutet, dass ein größerer Teil deines Trainings intensiv statt locker war.'
+'A high score means you concentrate more training into fewer, heavier days.': 'Ein hoher Wert bedeutet, dass du dein Training auf weniger, dafür intensivere Tage konzentrierst.'
 'A:C Ratio': 'A:C-Verhältnis'
 'ATL (Fatigue)': 'ATL (Ermüdung)'
 'Active days': 'Aktive Tage'
@@ -29,7 +32,7 @@ All: Alle
 'Alpine Ski': 'Ski Alpin'
 Apr: Apr
 'Ask Mark something...': 'Frag Mark etwas...'
-'Athlete profile': 'Athlete profile'
+'Athlete profile': 'Sportlerprofil'
 Aug: Aug
 Avg: Durchschn.
 'Back Country Ski': Skitouren
@@ -78,6 +81,7 @@ Distance: Distanz
 'Distance over time per gear': 'Distanz über Zeit pro Ausrüstung'
 'Distance per month per gear': 'Distanz pro Monat pro Ausrüstung'
 Distribution: Verteilung
+'Doing a mix of cycling, running, swimming, and strength work increases your variety score.': 'Eine Mischung aus Radfahren, Laufen, Schwimmen und Krafttraining erhöht deinen Abwechslungs-Wert.'
 Duration: Dauer
 'E-Bike Rides': E-Bike-Radfahrten
 'E-Mountain Bike Rides': E-Mountainbike-Fahrten
@@ -157,6 +161,7 @@ Kayaking: Kajakfahren
 Lap: Runde
 Laps: Runden
 'Last 7 days training load': 'Trainingsbelastung der letzten 7 Tage'
+'Last activity': 'Letzte Aktivität'
 'Last effort': 'Letzte Anstrengung'
 'Last maintenance': 'Letzte Wartung'
 'Last {numberOfDays} days': 'Letzten {numberOfDays} Tage'
@@ -269,10 +274,11 @@ Snowboard: Snowboard
 Snowshoe: Schneeschuhwandern
 Soccer: Fußball
 Socials: 'Soziale Medien'
+'Someone who regularly trains for 90 minutes will score higher than someone doing mostly short sessions.': 'Regelmäßige 90-Minuten-Sessions bringen einen höheren Wert als viele kurze Einheiten.'
 Speed: Geschwindigkeit
 'Speed distribution': 'Speed distribution'
 Splits: Zwischenzeiten
-'Sport variety': 'Sport variety'
+'Sport variety': 'Sportvielfalt'
 Squash: Squash
 'Stair Stepper': Stufen-Stepper
 'Stand Up Paddling': Stand-Up-Paddeln
@@ -296,7 +302,7 @@ Tennis: Tennis
 'The Eddington number in the context of cycling or running is defined as the maximum number E such that the athlete has covered at least E km on at least E days.': 'Die Eddington-Zahl im Kontext des Radfahrens oder Laufens ist definiert als die maximale Zahl E, bei der der Sportler an mindestens E Tagen jeweils mindestens E km zurückgelegt hat.'
 'These badges are dynamically created. You can use them in any &lt;img&gt; tag': 'Diese Abzeichen sind dynamisch erstellt. Du kannst sie in allen &lt;img&gt; Tags verwenden.'
 Thinking...: Denke...
-'This chart summarizes how you train. Each axis reflects a different normalized training habit, so higher values mean stronger emphasis.': 'This chart summarizes how you train. Each axis reflects a different normalized training habit, so higher values mean stronger emphasis.'
+'This chart summarizes how you train. Each axis reflects a different normalized training habit, so higher values mean stronger emphasis.': 'Diese Grafik zeigt deinen Trainingsstil. Die Achsen stehen für verschiedene normalisierte Gewohnheiten. Höhere Werte bedeuten dabei eine stärkere Gewichtung.'
 'This feature is currently disabled': 'Dieses Feature ist momentan deaktiviert'
 Thu: Do
 Thursday: Donnerstag
@@ -313,6 +319,7 @@ To: Bis
 'Total hours spent per sport type': 'Gesamtstunden pro Sportart'
 'Total kudos and comments received': 'Gesamtzahl an erhaltenen Kudos und Kommentaren'
 'Trail Runs': Trail-Läufe
+'Training 4–5 days every week scores higher than doing everything in one or two days.': '4-5 Tage Training pro Woche erzielen einen höheren Wert als alles an einem oder zwei Tagen zu erledigen.'
 'Training Impulse - Training load metric that accounts for intensity and duration.': 'Trainingsimpuls - Kennzahl für die Trainingsbelastung, die Intensität und Dauer berücksichtigt.'
 'Training Load Analysis': Trainingsbelastungsanalyse
 'Training Load Analysis (6 week history)': 'Trainingsbelastungsanalyse (6 Wochen Verlauf)'
@@ -333,7 +340,7 @@ Unspecified: 'Nicht spezifiziert'
 'Virtual Row': 'Virtuelles Rudern'
 'Virtual Runs': 'Virtuelle Läufe'
 'Virtual workout assistant': 'Virtueller Workout Assistent'
-Volume: Volume
+Volume: Umfang
 Walking: Gehen
 Walks: Spaziergänge
 'Water Sports': Wassersport
