@@ -1,11 +1,13 @@
 @import "tailwindcss" source(none);
 @import "../../node_modules/flowbite/src/themes/default.css";
 @import "./chat.css";
+@import "./dark-mode.css" layer(base);
 
 @source "../../templates/**/*.html.twig";
 @source "../../public/*.html";
 @source "../../public/js/**/*.js";
 @source "../../src/Infrastructure/Twig/*.php";
+@source "../../src/Domain/Dashboard/Widget/TrainingLoad/*.php";
 
 @plugin "tailwind-scrollbar";
 @plugin "flowbite/plugin";
@@ -17,6 +19,7 @@
     --color-grey-yo: #cccccc;
 }
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 @custom-variant aria-asc (&[aria-sort="ascending"]);
 @custom-variant aria-desc (&[aria-sort="descending"]);
 
@@ -101,6 +104,10 @@
 
             & > a {
                 @apply inline-flex gap-x-1 items-center px-4 py-1 text-sm font-medium hover:text-strava-orange;
+
+                &.active {
+                    @apply text-strava-orange;
+                }
             }
         }
     }

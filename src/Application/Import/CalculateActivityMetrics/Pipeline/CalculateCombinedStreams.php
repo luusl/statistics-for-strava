@@ -6,6 +6,7 @@ namespace App\Application\Import\CalculateActivityMetrics\Pipeline;
 
 use App\Domain\Activity\ActivityRepository;
 use App\Domain\Activity\ActivityType;
+use App\Domain\Activity\Stream\ActivityStream;
 use App\Domain\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Activity\Stream\ActivityStreams;
 use App\Domain\Activity\Stream\CombinedStream\CombinedActivityStream;
@@ -51,7 +52,7 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
             $activityType = $activity->getSportType()->getActivityType();
 
             $streams = $this->activityStreamRepository->findByActivityId($activityId);
-            if (!$distanceStream = $streams->filterOnType(StreamType::DISTANCE)) {
+            if (!($distanceStream = $streams->filterOnType(StreamType::DISTANCE)) instanceof ActivityStream) {
                 continue;
             }
             $combinedStreamTypes = CombinedStreamTypes::fromArray([
@@ -61,7 +62,7 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
             $otherStreams = ActivityStreams::empty();
             /** @var CombinedStreamType $combinedStreamType */
             foreach (CombinedStreamTypes::othersFor($activity->getSportType()->getActivityType()) as $combinedStreamType) {
-                if (!$stream = $streams->filterOnType($combinedStreamType->getStreamType())) {
+                if (!($stream = $streams->filterOnType($combinedStreamType->getStreamType())) instanceof ActivityStream) {
                     continue;
                 }
                 if (!$stream->getData()) {
@@ -76,6 +77,11 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
                     // Smoothen the power stream to remove noise and have a smooth line.
                     $stream = $stream->applySimpleMovingAverage(3);
                 }
+                if (in_array($activity->getSportType()->getActivityType(), [ActivityType::RUN, ActivityType::WALK])
+                    && StreamType::VELOCITY === $stream->getStreamType()) {
+                    // Smoothen the velocity stream to remove noise and have a smooth line.
+                    $stream = $stream->applySimpleMovingAverage(15);
+                }
 
                 $combinedStreamTypes->add($combinedStreamType);
                 $otherStreams->add($stream);
@@ -89,7 +95,7 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
 
             // We need to add these after the CombinedStreamTypes::othersFor() otherwise we'll end up with "Undefined array key" errors.
             // This is because CombinedStreamTypes::othersFor() does not return LAT_LNG and TIME as these are not really "combined" streams.
-            if ($latLngStream = $streams->filterOnType(StreamType::LAT_LNG)) {
+            if (($latLngStream = $streams->filterOnType(StreamType::LAT_LNG)) instanceof ActivityStream) {
                 $combinedStreamTypes->add(CombinedStreamType::LAT_LNG);
             }
 
@@ -99,7 +105,7 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
             $originalMovingData = $streams->filterOnType(StreamType::MOVING)?->getData();
 
             $cumulativeMovingTime = [];
-            if (!empty($originalTimeData) && !empty($originalMovingData)) {
+            if ([] !== $originalTimeData && (null !== $originalMovingData && [] !== $originalMovingData)) {
                 $cumulativeMovingTime = [0];
                 for ($i = 1, $len = count($originalTimeData); $i < $len; ++$i) {
                     $delta = $originalTimeData[$i] - $originalTimeData[$i - 1];
@@ -113,7 +119,7 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
                 }
             }
 
-            if (!empty($cumulativeMovingTime)) {
+            if ([] !== $cumulativeMovingTime) {
                 $combinedStreamTypes->add(CombinedStreamType::TIME);
             }
 
@@ -133,14 +139,14 @@ final readonly class CalculateCombinedStreams implements CalculateActivityMetric
                 $distance = $row[$distanceIndex];
 
                 $indexForOriginalDistance = array_search($distance, $originalDistances);
-                if (false !== $coordinateIndex && !empty($originalCoordinates)) {
+                if (false !== $coordinateIndex && [] !== $originalCoordinates) {
                     // Find corresponding coordinate for distance.
                     $row[$coordinateIndex] = $originalCoordinates[$indexForOriginalDistance];
                 }
-                if ($cumulativeMovingTime) {
+                if ([] !== $cumulativeMovingTime) {
                     // Find corresponding time for distance.
-                    $movingUpUntilThisPoint = $cumulativeMovingTime[$indexForOriginalDistance];
-                    $row[$timeIndex] = $this->formatDurationForHumans($movingUpUntilThisPoint);
+                    $movingTimeUntilThisPoint = $cumulativeMovingTime[$indexForOriginalDistance];
+                    $row[$timeIndex] = $this->formatDurationForHumans($movingTimeUntilThisPoint);
                 }
 
                 $distanceInKm = Meter::from($distance)->toKilometer();

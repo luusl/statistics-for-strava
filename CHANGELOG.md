@@ -1,3 +1,66 @@
+# [v4.6.0](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.6.0) - 2026-02-07
+
+## Dark mode is here!
+
+No more getting flash-banged by the UI at night.
+Because your eyes didn't deserve to burn like they were staring into the sun.
+
+## New "profile" dropdown
+
+We’ve moved the following links into a new dropdown in the top-right corner, accessible by clicking your profile picture:
+
+* Workout assistant
+* Badges
+* Strava profile
+
+## What's Changed
+* Update German translations by @luusl in https://github.com/robiningelbrecht/statistics-for-strava/pull/1712
+* ISSUE #1713: Add crossorigin=use-credentials to manifest link by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1717
+* ISSUE #1714: Dark mode by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1715
+* ISSUE #1714: Always show profile drop down by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1719
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.5.0...v4.6.0
+
+# [v4.5.0](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.5.0) - 2026-02-03
+
+> [!WARNING]  
+> Before upgrading to this release, you'll need to upgrade to `v4.4.2` first. 
+> Skipping this step will result in an error.
+
+## What's Changed
+* ISSUE #1696: Refactor enrichers to builders to ensure immutable objects by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1697
+* ISSUE #1698: Squash existing database migrations to one file by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1699
+* feat(training-load): add a forecast tab for training load recovery by @hutchinsp01 in https://github.com/robiningelbrecht/statistics-for-strava/pull/1702
+* ISSUE #1705: New Shoutrrr release available: v0.13.2 by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1706
+* ISSUE #1707: Save the filters of the activities and segments overviews between page refreshes by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1708
+
+## New Contributors
+* @hutchinsp01 made their first contribution in https://github.com/robiningelbrecht/statistics-for-strava/pull/1702
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.4.2...v4.5.0
+
+# [v4.4.2](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.4.2) - 2026-01-30
+
+## What's Changed
+* ISSUE #1688: Revisit how intensity in the Athlete profile chart is calculated by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1689
+* ISSUE #1691: Pace data smoothing for activity charts by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1692
+* ISSUE #1682: Best effort periods by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1693
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.4.1...v4.4.2
+
+# [v4.4.1](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.4.1) - 2026-01-26
+
+## What's Changed
+* ISSUE #1659: Introduce ActivityIdRepository by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1662
+* ISSUE #1675: Postpone webhooks process when other process is importing data by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1676
+* ISSUE #1677: Webhook fails due to Invalid RESTING_HEART_RATE_FORMULA by @robiningelbrecht in https://github.com/robiningelbrecht/statistics-for-strava/pull/1679
+* Respect app basePath when resolving default route by @luusl in https://github.com/robiningelbrecht/statistics-for-strava/pull/1678
+
+## New Contributors
+* @luusl made their first contribution in https://github.com/robiningelbrecht/statistics-for-strava/pull/1678
+
+**Full Changelog**: https://github.com/robiningelbrecht/statistics-for-strava/compare/v4.4.0...v4.4.1
+
 # [v4.4.0](https://github.com/robiningelbrecht/statistics-for-strava/releases/tag/v4.4.0) - 2026-01-19
 
 To properly calculate activity intensities, we introduced a new config option:
