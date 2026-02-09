@@ -6,11 +6,12 @@ namespace App\Application\Build\BuildActivitiesHtml;
 
 use App\Application\Countries;
 use App\Domain\Activity\ActivityTotals;
-use App\Domain\Activity\BestEffort\ActivityBestEffortRepository;
+use App\Domain\Activity\BestEffort\BestEffortsCalculator;
 use App\Domain\Activity\Device\DeviceRepository;
 use App\Domain\Activity\EnrichedActivities;
 use App\Domain\Activity\HeartRateDistributionChart;
 use App\Domain\Activity\Lap\ActivityLapRepository;
+use App\Domain\Activity\LeafletMap;
 use App\Domain\Activity\PowerDistributionChart;
 use App\Domain\Activity\Split\ActivitySplitRepository;
 use App\Domain\Activity\SportType\SportTypeRepository;
@@ -52,7 +53,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         private GearRepository $gearRepository,
         private DeviceRepository $deviceRepository,
         private FtpHistory $ftpHistory,
-        private ActivityBestEffortRepository $activityBestEffortRepository,
+        private BestEffortsCalculator $bestEffortsCalculator,
         private HeartRateZoneConfiguration $heartRateZoneConfiguration,
         private Countries $countries,
         private UnitSystem $unitSystem,
@@ -69,7 +70,6 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         $now = $command->getCurrentDateTime();
         $athlete = $this->athleteRepository->find();
         $importedSportTypes = $this->sportTypeRepository->findAll();
-        $bestEfforts = $this->activityBestEffortRepository->findAll();
 
         $activities = $this->enrichedActivities->findAll();
 
@@ -111,7 +111,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             }
 
             $distributionCharts = [];
-            if ($activity->getAverageHeartRate() && $heartRateStream && !empty($heartRateStream->getValueDistribution())) {
+            if ($activity->getAverageHeartRate() && $heartRateStream && [] !== $heartRateStream->getValueDistribution()) {
                 $distributionCharts[] = [
                     'title' => $this->translator->trans('Heart rate distribution'),
                     'data' => Json::encode(HeartRateDistributionChart::create(
@@ -150,7 +150,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     ];
                 }
             }
-            if ($velocityStream && !empty($velocityStream->getValueDistribution())) {
+            if ($velocityStream && [] !== $velocityStream->getValueDistribution()) {
                 $velocityUnitPreference = $activity->getSportType()->getVelocityDisplayPreference();
 
                 $velocityDistributionChart = VelocityDistributionChart::create(
@@ -188,7 +188,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                         length: $movingTimeInSeconds
                     );
                     if (0 === count($heartRatesForCurrentSplit)) {
-                        continue;
+                        continue; // @codeCoverageIgnore
                     }
                     $averageHeartRate = (int) round(array_sum($heartRatesForCurrentSplit) / count($heartRatesForCurrentSplit));
 
@@ -215,7 +215,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     foreach ($streamTypesForCharts as $index => $combinedStreamType) {
                         $xAxisPosition = match (true) {
                             0 === $index => Theme::POSITION_BOTTOM,
-                            $index === count($streamTypesForCharts) - 1 && !empty($times) => Theme::POSITION_TOP,
+                            $index === count($streamTypesForCharts) - 1 && [] !== $times => Theme::POSITION_TOP,
                             default => null,
                         };
                         $xAxisData = match (true) {
@@ -247,7 +247,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 'activity/'.$activity->getId().'.html',
                 $this->twig->load($templateName)->render([
                     'activity' => $activity,
-                    'leaflet' => $leafletMap ? [
+                    'leaflet' => $leafletMap instanceof LeafletMap ? [
                         'routes' => [$activity->getPolyline()],
                         'map' => $leafletMap,
                         'gpxLink' => $activityHasTimeStream ? 'files/'.$gpxFileLocation : null,
@@ -257,7 +257,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     'splits' => $activitySplits,
                     'laps' => $this->activityLapRepository->findBy($activity->getId()),
                     'profileCharts' => array_reverse($activityProfileCharts),
-                    'bestEfforts' => $bestEfforts->getByActivity($activity->getId()),
+                    'bestEfforts' => $this->bestEffortsCalculator->forActivity($activity->getId()),
                     'coordinateMap' => Json::encode($coordinateMap),
                 ]),
             );
