@@ -18,8 +18,7 @@ use App\Domain\Activity\SportType\SportTypeRepository;
 use App\Domain\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Activity\Stream\CombinedStream\CombinedActivityStreamRepository;
-use App\Domain\Activity\Stream\CombinedStream\CombinedStreamProfileChart;
-use App\Domain\Activity\Stream\CombinedStream\CombinedStreamType;
+use App\Domain\Activity\Stream\CombinedStream\CombinedStreamProfileCharts;
 use App\Domain\Activity\Stream\StreamType;
 use App\Domain\Activity\VelocityDistributionChart;
 use App\Domain\Athlete\AthleteRepository;
@@ -31,7 +30,6 @@ use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\Serialization\Json;
-use App\Infrastructure\Theme\Theme;
 use App\Infrastructure\ValueObject\DataTableRow;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use App\Infrastructure\ValueObject\Measurement\Velocity\KmPerHour;
@@ -197,45 +195,43 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 }
             }
 
-            $activityProfileCharts = [];
+            $profileChart = null;
+            $profileChartHeight = 0;
             $coordinateMap = [];
-            if ($activityType->supportsCombinedStreamCalculation()) {
-                try {
-                    $combinedActivityStream = $this->combinedActivityStreamRepository->findOneForActivityAndUnitSystem(
-                        activityId: $activity->getId(),
-                        unitSystem: $this->unitSystem
-                    );
+            try {
+                $combinedActivityStream = $this->combinedActivityStreamRepository->findOneForActivityAndUnitSystem(
+                    activityId: $activity->getId(),
+                    unitSystem: $this->unitSystem
+                );
 
-                    $distances = $combinedActivityStream->getDistances();
-                    $times = $combinedActivityStream->getTimes();
-                    $coordinateMap = $combinedActivityStream->getCoordinates();
+                $maximumNumberOfDigits = $combinedActivityStream->getMaximumNumberOfDigits();
+                $distances = $combinedActivityStream->getDistances();
+                $times = $combinedActivityStream->getTimes();
+                $grades = $combinedActivityStream->getGrades();
+                $coordinateMap = $combinedActivityStream->getCoordinates();
 
-                    $streamTypesForCharts = $combinedActivityStream->getStreamTypesForCharts();
-                    /** @var CombinedStreamType $combinedStreamType */
-                    foreach ($streamTypesForCharts as $index => $combinedStreamType) {
-                        $xAxisPosition = match (true) {
-                            0 === $index => Theme::POSITION_BOTTOM,
-                            $index === count($streamTypesForCharts) - 1 && [] !== $times => Theme::POSITION_TOP,
-                            default => null,
-                        };
-                        $xAxisData = match (true) {
-                            Theme::POSITION_TOP === $xAxisPosition => $times,
-                            default => $distances,
-                        };
-
-                        $chart = CombinedStreamProfileChart::create(
-                            xAxisData: $xAxisData,
-                            xAxisPosition: $xAxisPosition,
-                            xAxisLabelSuffix: Theme::POSITION_BOTTOM === $xAxisPosition ? $this->unitSystem->distanceSymbol() : null,
-                            yAxisData: $combinedActivityStream->getChartStreamData($combinedStreamType),
-                            yAxisStreamType: $combinedStreamType,
-                            unitSystem: $this->unitSystem,
-                            translator: $this->translator
-                        );
-                        $activityProfileCharts[$combinedStreamType->value] = Json::encode($chart->build());
-                    }
-                } catch (EntityNotFound) {
+                $streamTypesForCharts = $combinedActivityStream->getStreamTypesForCharts();
+                $items = [];
+                foreach ($streamTypesForCharts as $combinedStreamType) {
+                    $items[] = [
+                        'yAxisData' => $combinedActivityStream->getChartStreamData($combinedStreamType),
+                        'yAxisStreamType' => $combinedStreamType,
+                    ];
                 }
+
+                $combinedCharts = CombinedStreamProfileCharts::create(
+                    items: array_reverse($items),
+                    topXAxisData: $times,
+                    bottomXAxisData: $distances,
+                    bottomXAxisSuffix: $this->unitSystem->distanceSymbol(),
+                    grades: $grades,
+                    maximumNumberOfDigitsOnYAxis: $maximumNumberOfDigits,
+                    unitSystem: $this->unitSystem,
+                    translator: $this->translator,
+                );
+                $profileChart = Json::encode($combinedCharts->build());
+                $profileChartHeight = $combinedCharts->getTotalHeight();
+            } catch (EntityNotFound) {
             }
 
             $leafletMap = $activity->getLeafletMap();
@@ -256,7 +252,8 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     'segmentEfforts' => $this->segmentEffortRepository->findByActivityId($activity->getId()),
                     'splits' => $activitySplits,
                     'laps' => $this->activityLapRepository->findBy($activity->getId()),
-                    'profileCharts' => array_reverse($activityProfileCharts),
+                    'profileChart' => $profileChart,
+                    'profileChartHeight' => $profileChartHeight,
                     'bestEfforts' => $this->bestEffortsCalculator->forActivity($activity->getId()),
                     'coordinateMap' => Json::encode($coordinateMap),
                 ]),
