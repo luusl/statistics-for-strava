@@ -45,12 +45,12 @@ const initElements = (rootNode) => {
     initAccordions();
 
     modalManager.init(rootNode);
+    dataTableManager.init(rootNode);
     chartManager.init(rootNode, darkModeManager.isDarkModeEnabled());
     mapManager.init(rootNode);
     fullscreenManager.init(rootNode);
 }
 
-modalManager.setInitElements(initElements)
 sidebar.init();
 darkModeManager.attachEventListeners();
 
@@ -66,7 +66,6 @@ document.addEventListener('tabChangeWasTriggered', (e) => {
 
 document.addEventListener('pageWasLoaded', (e) => {
     modalManager.close();
-    dataTableManager.init();
 
     chartManager.reset();
     initElements(document);
@@ -75,6 +74,10 @@ document.addEventListener('pageWasLoaded', (e) => {
         // Open modal.
         modalManager.open(e.detail.modalId);
     }
+});
+document.addEventListener('modalWasLoaded', (e) => {
+    const node = e.detail.node;
+    initElements(node);
 });
 document.addEventListener('pageWasLoaded.heatmap', async () => {
     const $heatmapWrapper = document.querySelector('.heatmap-wrapper');
@@ -96,8 +99,9 @@ document.addEventListener('navigationLinkHasBeenClicked', (e) => {
         dataTableStorage.set(tableName, tableFilters);
     });
 });
-document.addEventListener('dataTableClusterWasChanged', () => {
-    modalManager.init(document);
+document.addEventListener('dataTableClusterWasChanged', (e) => {
+    const node = e.detail.node;
+    modalManager.init(node);
 });
 window.addEventListener('resize', function () {
     chartManager.resizeAll();

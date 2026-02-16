@@ -27,6 +27,7 @@ final readonly class BuildSegmentsHtmlCommandHandler implements CommandHandler
         private Countries $countries,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
+        private FilesystemOperator $apiStorage,
     ) {
     }
 
@@ -56,7 +57,6 @@ final readonly class BuildSegmentsHtmlCommandHandler implements CommandHandler
                     $this->twig->load('html/segment/segment.html.twig')->render([
                         'segment' => $segment,
                         'segmentEffortsTopTen' => $segmentEffortsTopTen,
-                        'segmentEffortsHistory' => $segmentEffortsHistory,
                         'segmentEffortsHistoryChart' => Json::encode(
                             SegmentEffortHistoryChart::create($segmentEffortsHistory)->build()
                         ),
@@ -81,9 +81,9 @@ final readonly class BuildSegmentsHtmlCommandHandler implements CommandHandler
             $pagination = $pagination->next();
         } while (!$segments->isEmpty());
 
-        $this->buildStorage->write(
-            'fetch-json/segment-data-table.json',
-            Json::encode($dataDatableRows),
+        $this->apiStorage->write(
+            'segment/data-table.json',
+            (string) Json::encodeAndCompress($dataDatableRows),
         );
 
         $this->buildStorage->write(

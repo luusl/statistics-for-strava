@@ -57,6 +57,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         private UnitSystem $unitSystem,
         private Environment $twig,
         private FilesystemOperator $buildStorage,
+        private FilesystemOperator $apiStorage,
         private TranslatorInterface $translator,
     ) {
     }
@@ -229,14 +230,26 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     unitSystem: $this->unitSystem,
                     translator: $this->translator,
                 );
-                $profileChart = Json::encode($combinedCharts->build());
+                $profileChart = $combinedCharts->build();
                 $profileChartHeight = $combinedCharts->getTotalHeight();
             } catch (EntityNotFound) {
             }
 
+            if ($profileChart) {
+                $unprefixedActivityId = $activity->getId()->toUnprefixedString();
+                $this->apiStorage->write(
+                    sprintf('activity/%s/metrics.json', $unprefixedActivityId),
+                    (string) Json::encodeAndCompress($profileChart),
+                );
+                $this->apiStorage->write(
+                    sprintf('activity/%s/coordinates.json', $unprefixedActivityId),
+                    (string) Json::encodeAndCompress($coordinateMap),
+                );
+            }
+
             $leafletMap = $activity->getLeafletMap();
             $templateName = sprintf('html/activity/%s.html.twig', $activity->getSportType()->getTemplateName());
-            $gpxFileLocation = sprintf('activities/gpx/%s.gpx', $activity->getId());
+            $gpxFileLocation = sprintf('api/activity/%s/route.gpx', $activity->getId()->toUnprefixedString());
             $activityHasTimeStream = $this->activityStreamRepository->hasOneForActivityAndStreamType($activity->getId(), StreamType::TIME);
 
             $this->buildStorage->write(
@@ -246,16 +259,15 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     'leaflet' => $leafletMap instanceof LeafletMap ? [
                         'routes' => [$activity->getPolyline()],
                         'map' => $leafletMap,
-                        'gpxLink' => $activityHasTimeStream ? 'files/'.$gpxFileLocation : null,
+                        'gpxLink' => $activityHasTimeStream ? $gpxFileLocation : null,
                     ] : null,
                     'distributionCharts' => $distributionCharts,
                     'segmentEfforts' => $this->segmentEffortRepository->findByActivityId($activity->getId()),
                     'splits' => $activitySplits,
                     'laps' => $this->activityLapRepository->findBy($activity->getId()),
-                    'profileChart' => $profileChart,
                     'profileChartHeight' => $profileChartHeight,
+                    'hasProfileChart' => null !== $profileChart,
                     'bestEfforts' => $this->bestEffortsCalculator->forActivity($activity->getId()),
-                    'coordinateMap' => Json::encode($coordinateMap),
                 ]),
             );
 
@@ -271,9 +283,9 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             );
         }
 
-        $this->buildStorage->write(
-            'fetch-json/activity-data-table.json',
-            Json::encode($dataDatableRows),
+        $this->apiStorage->write(
+            'activity/data-table.json',
+            (string) Json::encodeAndCompress($dataDatableRows),
         );
     }
 }
