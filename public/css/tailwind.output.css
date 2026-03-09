@@ -1697,6 +1697,9 @@
   .max-h-80 {
     max-height: calc(var(--spacing) * 80);
   }
+  .max-h-92 {
+    max-height: calc(var(--spacing) * 92);
+  }
   .max-h-\[calc\(100vh-114px\)\] {
     max-height: calc(100vh - 114px);
   }
@@ -1717,6 +1720,9 @@
   }
   .min-h-64 {
     min-height: calc(var(--spacing) * 64);
+  }
+  .min-h-80 {
+    min-height: calc(var(--spacing) * 80);
   }
   .min-h-\[350px\] {
     min-height: 350px;
@@ -3965,6 +3971,12 @@
       line-height: var(--tw-leading, var(--text-4xl--line-height));
     }
   }
+  .md\:text-base {
+    @media (width >= 48rem) {
+      font-size: var(--text-base);
+      line-height: var(--tw-leading, var(--text-base--line-height));
+    }
+  }
   .md\:text-lg {
     @media (width >= 48rem) {
       font-size: var(--text-lg);
@@ -4770,6 +4782,23 @@
           &.active {
             border-color: var(--color-strava-orange);
             color: var(--color-strava-orange);
+          }
+        }
+      }
+    }
+    &.tabs--vertical {
+      & > ul {
+        margin-right: calc(var(--spacing) * 2);
+        flex-direction: column;
+        column-gap: calc(var(--spacing) * 0);
+        row-gap: calc(var(--spacing) * 1);
+        text-align: left;
+        & > li {
+          & > a {
+            border-bottom-style: var(--tw-border-style);
+            border-bottom-width: 0px;
+            border-left-style: var(--tw-border-style);
+            border-left-width: 2px;
           }
         }
       }
