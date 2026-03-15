@@ -27,6 +27,7 @@ Apr: Avr
 'Ask Mark something...': 'Demandez quelque chose à Mark...'
 'Athlete profile': 'Athlete profile'
 Aug: Aoû
+'Average gradient': 'Average gradient'
 Avg: Moy
 'Back Country Ski': 'Ski de randonnée'
 Badges: Badges
@@ -126,6 +127,7 @@ Goal: Objectif
 Golf: Golf
 'Good training variety': "Bonne variété d'entraînement"
 'Google searches': 'Recherches Google'
+Gradient: Gradient
 'Gravel Rides': 'Sorties Gravel'
 "Guidelines vary by individual; for more information see Joe Friel's 'The Cyclist's Training Bible' or TrainingPeaks' research documentation.": "Les directives varient selon l'individu ; pour plus d'informations, voir 'The Cyclist's Training Bible' de Joe Friel ou la documentation de recherche de TrainingPeaks."
 HIIT: HIIT
@@ -507,6 +509,7 @@ Yoga: Yoga
 'Zwift stats': 'Stats Zwift'
 activities: activités
 and: et
+'average gradient': 'average gradient'
 avg: moy
 bpm: bpm
 clear: effacer
