@@ -51,7 +51,7 @@ RUN mkdir -p /var/www/var/log
 # Install Shoutrrr.
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
-ARG SHOUTRRR_VERSION="0.14.0"
+ARG SHOUTRRR_VERSION="0.14.3"
 
 RUN if [ "${TARGETARCH}" = "arm64" ]; then \
       curl -L -o shoutrrr.tar.gz "https://github.com/nicholas-fedor/shoutrrr/releases/download/v$SHOUTRRR_VERSION/shoutrrr_linux_arm64v8_${SHOUTRRR_VERSION}.tar.gz"; \
@@ -62,9 +62,9 @@ RUN if [ "${TARGETARCH}" = "arm64" ]; then \
     else \
       echo "Error: Unsupported TARGETARCH '${TARGETARCH}'" >&2 && exit 1; \
     fi
-RUN tar -xzf shoutrrr.tar.gz
-RUN chmod +x shoutrrr
-RUN mv shoutrrr /usr/bin/shoutrrr && rm shoutrrr.tar.gz
+RUN tar -xzf shoutrrr.tar.gz \
+    && chmod +x shoutrrr \
+    && mv shoutrrr /usr/bin/shoutrrr && rm shoutrrr.tar.gz
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]
