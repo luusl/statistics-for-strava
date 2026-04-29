@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Activity\Route;
 
 use App\Infrastructure\Serialization\Json;
@@ -57,7 +59,7 @@ final readonly class RouteGeographyAnalyzer
         try {
             $routeLineString = $this->reader->read(Json::encode([
                 'type' => 'LineString',
-                'coordinates' => $polyline->decodeAndPairLonLat(),
+                'coordinates' => $polyline->decodeAndPairLngLat(),
             ]));
         } catch (InvalidGeometryException) {
             // Given polyline is somehow not a valid LineString.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Application\AppUrl;
 use App\Domain\Integration\AI\Chat\AddChatMessage\AddChatMessage;
 use App\Domain\Integration\AI\Chat\ChatCommands;
 use App\Domain\Integration\AI\Chat\ChatRepository;
@@ -11,12 +12,12 @@ use App\Infrastructure\Config\AppConfig;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
 use App\Infrastructure\Http\ServerSentEvent;
 use App\Infrastructure\Serialization\Json;
+use App\Infrastructure\ValueObject\String\Path;
 use GuzzleHttp\Exception\ClientException;
 use League\Flysystem\FilesystemOperator;
-use NeuronAI\AgentInterface;
+use NeuronAI\Agent\AgentInterface;
 use NeuronAI\Chat\Enums\MessageRole;
-use NeuronAI\Chat\Messages\ToolCallMessage;
-use NeuronAI\Chat\Messages\ToolCallResultMessage;
+use NeuronAI\Chat\Messages\Stream\Chunks\TextChunk;
 use NeuronAI\Chat\Messages\UserMessage;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -38,6 +39,7 @@ final readonly class AIChatRequestHandler
         private ChatCommands $chatCommands,
         private ChatRepository $chatRepository,
         private CommandBus $commandBus,
+        private AppUrl $appUrl,
         private FormFactoryInterface $formFactory,
         private Environment $twig,
     ) {
@@ -47,14 +49,14 @@ final readonly class AIChatRequestHandler
     public function handle(): Response
     {
         if (!$this->buildStorage->fileExists('index.html')) {
-            return new RedirectResponse('/', Response::HTTP_FOUND);
+            return new RedirectResponse(Path::from('/', $this->appUrl)->toRelativePath(), Response::HTTP_FOUND);
         }
         if (!AppConfig::isAIIntegrationWithUIEnabled()) {
             return new Response('UI for AI not enabled', Response::HTTP_OK);
         }
         $formBuilder = $this->formFactory->createBuilder();
         $form = $formBuilder
-            ->setAction('/ai/chat/user-message')
+            ->setAction(Path::from('/ai/chat/user-message', $this->appUrl)->toRelativePath())
             ->add('message', TextType::class, [
                 'label' => 'Message',
                 'required' => true,
@@ -77,15 +79,12 @@ final readonly class AIChatRequestHandler
         return new Response(status: Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     #[Route('/chat/sse', methods: ['GET'], priority: 2)]
     public function chatSse(Request $request): EventStreamResponse
     {
         return new EventStreamResponse(function (EventStreamResponse $response) use ($request): void {
-            /** @var string $message */
             $message = $request->query->get('message');
+            assert(is_string($message));
 
             $response->sendEvent(new ServerSentEvent(
                 data: $this->twig->render('html/chat/message.html.twig', [
@@ -110,12 +109,10 @@ final readonly class AIChatRequestHandler
             ));
 
             try {
-                foreach ($this->neuronAIAgent->stream(new UserMessage($message)) as $chunk) {
-                    if ($chunk instanceof ToolCallMessage) {
-                        continue;
-                    }
-                    if ($chunk instanceof ToolCallResultMessage) {
-                        continue;
+                $handler = $this->neuronAIAgent->stream(new UserMessage($message));
+                foreach ($handler->events() as $chunk) {
+                    if (!$chunk instanceof TextChunk) {
+                        continue;  // @codeCoverageIgnore
                     }
                     $response->sendEvent(new ServerSentEvent(
                         data: '',
@@ -123,7 +120,7 @@ final readonly class AIChatRequestHandler
                     ));
 
                     $response->sendEvent(new ServerSentEvent(
-                        data: $chunk,
+                        data: $chunk->content,
                         type: 'agentResponse'
                     ));
                 }
@@ -135,7 +132,7 @@ final readonly class AIChatRequestHandler
 
                 $message = $e->getMessage().': '.$e->getTraceAsString();
                 if ($e instanceof ClientException) {
-                    $message = $e->getResponse()->getBody()->getContents();
+                    $message = $e->getResponse()->getBody()->getContents(); // @codeCoverageIgnore
                 }
 
                 $fullMessage = 'Oh no, I made a booboo... <br />'.preg_replace('/\s+/', ' ', $message);

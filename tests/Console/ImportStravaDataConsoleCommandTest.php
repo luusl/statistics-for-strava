@@ -5,9 +5,9 @@ namespace App\Tests\Console;
 use App\Console\ImportStravaDataConsoleCommand;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
 use App\Infrastructure\CQRS\Command\DomainCommand;
-use App\Infrastructure\Daemon\Mutex\LockName;
-use App\Infrastructure\Daemon\Mutex\Mutex;
 use App\Infrastructure\Doctrine\Migrations\MigrationRunner;
+use App\Infrastructure\Mutex\LockName;
+use App\Infrastructure\Mutex\Mutex;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
 use App\Tests\Infrastructure\Time\Clock\PausedClock;
@@ -82,6 +82,34 @@ class ImportStravaDataConsoleCommandTest extends ConsoleCommandTestCase
         ]);
 
         $this->assertMatchesJsonSnapshot(Json::encode($dispatchedCommands));
+    }
+
+    public function testExecuteWhenExceptionIsThrown(): void
+    {
+        $dispatchedCommands = [];
+        $this->commandBus
+            ->expects($this->atLeastOnce())
+            ->method('dispatch')
+            ->willThrowException(new \RuntimeException('OH NO ERROR'));
+
+        $this->logger
+            ->expects($this->once())
+            ->method('error');
+
+        $this->migrationRunner
+            ->expects($this->once())
+            ->method('run');
+
+        $this->expectExceptionObject(new \RuntimeException('OH NO ERROR'));
+
+        $command = $this->getCommandInApplication('app:strava:import-data');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $command->getName(),
+        ]);
+
+        $this->assertMatchesSnapshot($commandTester->getDisplay(), new ConsoleOutputSnapshotDriver());
+        $this->assertEmpty($dispatchedCommands);
     }
 
     #[\Override]

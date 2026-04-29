@@ -48,7 +48,7 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
         if (!$this->gearMaintenanceConfig->isFeatureEnabled()) {
             $this->buildStorage->write(
                 'gear/maintenance.html',
-                $this->twig->load('html/gear/gear-maintenance-disabled.html.twig')->render()
+                $this->twig->load('html/gear/maintenance/gear-maintenance-disabled.html.twig')->render()
             );
 
             return;
@@ -100,14 +100,15 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
             );
         }
 
-        $gearsThatIsAttachedToComponents = Gears::empty();
+        $gearsThatAreAttachedToComponents = Gears::empty();
+        $gearIdsThatAreAttachedToComponents = [];
         /** @var GearComponent $gearComponent */
         foreach ($this->gearMaintenanceConfig->getGearComponents() as $gearComponent) {
             foreach ($gearComponent->getAttachedTo() as $attachedToGearId) {
                 if (!($gear = $gears->getByGearId($attachedToGearId)) instanceof Gear) {
                     continue;
                 }
-                if ($gearsThatIsAttachedToComponents->has($gear)) {
+                if (in_array((string) $gear->getId(), $gearIdsThatAreAttachedToComponents)) {
                     continue;
                 }
                 if ($gear->isRetired() && $this->gearMaintenanceConfig->ignoreRetiredGear()) {
@@ -119,11 +120,12 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
                     $gear = $gear->withImageSrc('/gear-maintenance/'.$imageSrc);
                 }
 
-                $gearsThatIsAttachedToComponents->add($gear);
+                $gearsThatAreAttachedToComponents->add($gear);
+                $gearIdsThatAreAttachedToComponents[] = (string) $gear->getId();
             }
         }
 
-        if ($gearsThatIsAttachedToComponents->isEmpty()) {
+        if ($gearsThatAreAttachedToComponents->isEmpty()) {
             $errors[] = $this->translator->trans('It looks like no valid gear is attached to any of the components. Please check your config file.');
         }
 
@@ -132,19 +134,19 @@ final readonly class BuildGearMaintenanceHtmlCommandHandler implements CommandHa
 
         $this->buildStorage->write(
             'gear/maintenance.html',
-            $this->twig->load('html/gear/gear-maintenance.html.twig')->render([
+            $this->twig->load('html/gear/maintenance/gear-maintenance.html.twig')->render([
                 'errors' => $errors,
                 'warnings' => $warnings,
-                'gearsAttachedToComponents' => $gearsThatIsAttachedToComponents,
+                'gearsAttachedToComponents' => $gearsThatAreAttachedToComponents,
                 'gearComponents' => $allGearComponents,
                 'gearIdsThatHaveDueTasks' => $this->maintenanceTaskProgressCalculator->getGearIdsThatHaveDueTasks(),
             ])
         );
 
-        foreach ($gearsThatIsAttachedToComponents as $gear) {
+        foreach ($gearsThatAreAttachedToComponents as $gear) {
             $this->buildStorage->write(
                 sprintf('gear/maintenance/history/%s.html', $gear->getId()),
-                $this->twig->load('html/gear/gear-maintenance-history.html.twig')->render([
+                $this->twig->load('html/gear/maintenance/gear-maintenance-history.html.twig')->render([
                     'gear' => $gear,
                     'maintenanceTaskTags' => $validMaintenanceTaskTags->filterOnGear($gear->getId())->sortOnDateDesc(),
                 ])

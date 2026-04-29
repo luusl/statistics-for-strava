@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Activity\Stream;
 
 enum StreamType: string
@@ -16,10 +18,13 @@ enum StreamType: string
     case MOVING = 'moving';
     case GRADE = 'grade_smooth';
 
-    public function supportsBestAverageCalculation(): bool
+    /**
+     * @return StreamType[]
+     */
+    public static function thatSupportDistributionValues(): array
     {
-        return in_array($this, [
-            self::WATTS, self::HEART_RATE, self::CADENCE,
-        ]);
+        return [
+            self::WATTS, self::HEART_RATE, self::VELOCITY, self::CADENCE,
+        ];
     }
 }

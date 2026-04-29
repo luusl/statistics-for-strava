@@ -14,6 +14,7 @@ use App\Domain\Zwift\ZwiftMap;
 use App\Infrastructure\ValueObject\Geography\Coordinate;
 use App\Infrastructure\ValueObject\Geography\EncodedPolyline;
 use App\Infrastructure\ValueObject\Measurement\Length\Kilometer;
+use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use App\Infrastructure\ValueObject\String\Name;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -51,6 +52,8 @@ final class Segment implements SupportsAITooling
         private readonly ?EncodedPolyline $polyline,
         #[ORM\Embedded(class: Coordinate::class)]
         private readonly ?Coordinate $startingCoordinate,
+        #[ORM\Column(type: 'float', nullable: true)]
+        private readonly ?float $averageGradient,
     ) {
     }
 
@@ -64,6 +67,7 @@ final class Segment implements SupportsAITooling
         ?int $climbCategory,
         ?string $deviceName,
         ?string $countryCode,
+        ?float $averageGradient,
     ): self {
         return new self(
             segmentId: $segmentId,
@@ -78,6 +82,7 @@ final class Segment implements SupportsAITooling
             detailsHaveBeenImported: false,
             polyline: null,
             startingCoordinate: null,
+            averageGradient: $averageGradient,
         );
     }
 
@@ -94,6 +99,7 @@ final class Segment implements SupportsAITooling
         bool $detailsHaveBeenImported,
         ?EncodedPolyline $polyline,
         ?Coordinate $startingCoordinate,
+        ?float $averageGradient,
     ): self {
         return new self(
             segmentId: $segmentId,
@@ -108,6 +114,7 @@ final class Segment implements SupportsAITooling
             detailsHaveBeenImported: $detailsHaveBeenImported,
             polyline: $polyline,
             startingCoordinate: $startingCoordinate,
+            averageGradient: $averageGradient,
         );
     }
 
@@ -148,6 +155,11 @@ final class Segment implements SupportsAITooling
     public function getMaxGradient(): float
     {
         return $this->maxGradient;
+    }
+
+    public function getAverageGradient(): ?float
+    {
+        return $this->averageGradient;
     }
 
     public function getSportType(): SportType
@@ -289,16 +301,20 @@ final class Segment implements SupportsAITooling
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, int|string>
      */
-    public function getFilterables(): array
+    public function getFilterables(UnitSystem $unitSystem): array
     {
-        return [
+        return array_filter([
             'isKom' => $this->isKOM() ? 'isKom' : '',
             'isFavourite' => $this->isFavourite() ? 'isFavourite' : '',
             'sportType' => $this->getSportType()->value,
             'countryCode' => $this->getCountryCode() ?? '',
-        ];
+            'distance' => (int) round($this->getDistance()->toUnitSystem($unitSystem)->toFloat() * 10), // We don't want to filter on float values, but integers instead.
+            'averageGradient' => $this->getAverageGradient() ? (int) round($this->getAverageGradient() * 10) : null, // We don't want to filter on float values, but integers instead.
+            'maxGradient' => (int) round($this->getMaxGradient() * 10), // We don't want to filter on float values, but integers instead.
+            'lastEffortDate' => $this->getLastEffortDate() instanceof SerializableDateTime ? $this->getLastEffortDate()->getTimestamp() * 1000 : null, // JS timestamp is in milliseconds,
+        ]);
     }
 
     /**
@@ -308,8 +324,8 @@ final class Segment implements SupportsAITooling
     {
         return array_filter([
             'name' => (string) $this->getName(),
-            'distance' => round($this->getDistance()->toFloat(), 2),
-            'max-gradient' => $this->getMaxGradient(),
+            'distance' => (int) ($this->getDistance()->toFloat() * 1000),
+            'average-gradient' => (int) ($this->getAverageGradient() * 100),
             'ride-count' => $this->getNumberOfTimesRidden(),
             'last-effort-date' => $this->getLastEffortDate()?->getTimestamp(),
         ]);

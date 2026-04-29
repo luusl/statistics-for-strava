@@ -5,10 +5,10 @@
 <h1 align="center">Statistics for Strava</h1>
 
 <p align="center">
-<a href="https://github.com/robiningelbrecht/statistics-for-strava/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/robiningelbrecht/statistics-for-strava/ci.yml?branch=master&logo=github&logoColor=white&label=CI" alt="CI"></a>
 <a href="https://raw.githubusercontent.com/robiningelbrecht/statistics-for-strava/refs/heads/master/LICENSE"><img src="https://img.shields.io/github/license/robiningelbrecht/statistics-for-strava?color=428f7e&logo=open%20source%20initiative&logoColor=white" alt="License"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/image-size/robiningelbrecht/strava-statistics?logo=docker&logoColor=white" alt="Docker Image Size"></a>
-<a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/pulls/robiningelbrecht/strava-statistics?logo=docker&logoColor=white" alt="Docker pulls"></a>
+<a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/pulls/robiningelbrecht/strava-statistics?logo=docker&logoColor=white&label=docker%20hub%20pulls" alt="Docker Hub pulls"></a>
+<a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/badge/dynamic/json?url=https://ghcr-badge.elias.eu.org/api/robiningelbrecht/statistics-for-strava/statistics-for-strava&query=downloadCount&logo=docker&label=github%20cr%20pulls&logoColor=white" alt="GitHub CR pulls"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/v/robiningelbrecht/strava-statistics?sort=semver&logo=docker&logoColor=white" alt="Docker version"></a>
 <a href="https://discord.gg/p4zpZyCHNc"><img src="https://img.shields.io/badge/Statistics%20for%20Strava-%235865F4?logo=discord&logoColor=%23ffffff&label=%20&labelColor=585858" alt="Discord server"></a>  
 </p>
@@ -46,6 +46,7 @@ https://github.com/user-attachments/assets/81554f32-31be-4899-afd6-681ce3e7bcb6
 * **Eddington** - For your distance milestones
 * **Segments & Efforts** - Dive into your segment history and times
 * **Heatmap** - Visualize where you’ve been active the most
+* **Milestones** - A timeline view of your key achievements and milestones over time
 * **Strava Rewind** - A fun way to look back on your year in motion
 * **Challenges** - See which Strava challenges you've conquered
 * **Activity Photos** - Relive your moments with a photo archive

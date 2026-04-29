@@ -1,32 +1,38 @@
-import {DataTableStorage} from "./filters";
-import Router from "./router";
-import {updateGithubLatestRelease} from "./github";
-import Sidebar from "./ui/sidebar";
-import ChartManager from "./ui/charts";
-import ModalManager from "./ui/modals";
-import PhotoWall from "./ui/photo-wall";
-import MapManager from "./ui/maps";
-import TabsManager from "./ui/tabs";
+import {eventBus, Events} from "./core/event-bus";
+import {FilterStorage} from "./features/data-table/storage";
+import Router from "./core/router";
+import {updateGithubLatestRelease} from "./services/github";
+import Sidebar from "./components/sidebar";
+import ChartManager from "./features/charts/chart-manager";
+import {registerEchartsCallbacks} from "./features/charts/echarts-callbacks";
+import ModalManager from "./components/modals";
+import PhotoWall from "./features/photos/photo-wall";
+import LeafletMapManager from "./features/maps/map-manager";
+import TabsManager from "./components/tabs";
 import LazyLoad from "../libraries/lazyload.min";
-import DataTableManager from "./ui/data-tables";
-import FullscreenManager from "./fullscreen";
-import Heatmap from "./ui/heatmap";
-import DarkModeManager from "./dark-mode";
+import DataTableManager from "./features/data-table/data-table-manager";
+import FullscreenManager from "./components/fullscreen";
+import ScrollTo from "./components/scroll-to";
+import Heatmap from "./features/heatmap/heatmap";
+import MilestoneFilter from "./features/milestones/milestone-filter";
+import DarkModeManager from "./components/dark-mode";
 
 const $main = document.querySelector("main");
-const dataTableStorage = new DataTableStorage();
 
 // Boot router.
 const router = new Router($main);
 router.boot();
 
-const sidebar = new Sidebar($main);
+registerEchartsCallbacks();
+
+const sidebar = new Sidebar();
 const modalManager = new ModalManager(router);
-const chartManager = new ChartManager(router, dataTableStorage, modalManager);
-const mapManager = new MapManager();
+const chartManager = new ChartManager(router, modalManager);
+const leafletMapManager = new LeafletMapManager();
 const tabsManager = new TabsManager();
-const dataTableManager = new DataTableManager(dataTableStorage);
-const fullscreenManager = new FullscreenManager(chartManager);
+const dataTableManager = new DataTableManager();
+const fullscreenManager = new FullscreenManager();
+const scrollTo = new ScrollTo();
 const darkModeManager = new DarkModeManager();
 const lazyLoad = new LazyLoad({
     thresholds: "50px",
@@ -45,65 +51,63 @@ const initElements = (rootNode) => {
     initAccordions();
 
     modalManager.init(rootNode);
+    dataTableManager.init(rootNode);
     chartManager.init(rootNode, darkModeManager.isDarkModeEnabled());
-    mapManager.init(rootNode);
+    leafletMapManager.init(rootNode);
     fullscreenManager.init(rootNode);
+    scrollTo.init(rootNode);
 }
 
-modalManager.setInitElements(initElements)
 sidebar.init();
 darkModeManager.attachEventListeners();
 
-document.addEventListener('darkModeWasToggled', (e) => {
-    chartManager.toggleDarkTheme(e.detail.darkModeEnabled);
-});
-document.addEventListener('fullScreenModeWasEnabled', () => {
-    chartManager.resizeAll();
-});
-document.addEventListener('tabChangeWasTriggered', (e) => {
-    chartManager.resizeInTab(e.detail.activeTabId)
+eventBus.on(Events.DARK_MODE_TOGGLED, ({darkModeEnabled}) => {
+    chartManager.toggleDarkTheme(darkModeEnabled);
 });
 
-document.addEventListener('pageWasLoaded', (e) => {
+eventBus.on(Events.PAGE_LOADED, async ({page, modalId}) => {
     modalManager.close();
-    dataTableManager.init();
 
     chartManager.reset();
     initElements(document);
 
-    if (e.detail && e.detail.modalId) {
-        // Open modal.
-        modalManager.open(e.detail.modalId);
+    if (modalId) {
+        modalManager.open(modalId);
+    }
+
+    if (page === 'milestones') {
+        new MilestoneFilter(document).init();
+    }
+    if (page === 'heatmap') {
+        const $heatmapWrapper = document.querySelector('.heatmap-wrapper');
+        await new Heatmap($heatmapWrapper, modalManager).render();
+    }
+    if (page === 'photos') {
+        const $photoWallWrapper = document.querySelector('.photo-wall-wrapper');
+        await new PhotoWall($photoWallWrapper).render();
     }
 });
-document.addEventListener('pageWasLoaded.heatmap', async () => {
-    const $heatmapWrapper = document.querySelector('.heatmap-wrapper');
-    await new Heatmap($heatmapWrapper, modalManager).render();
-});
-document.addEventListener('pageWasLoaded.photos', () => {
-    const $photoWallWrapper = document.querySelector('.photo-wall-wrapper');
-    new PhotoWall($photoWallWrapper, dataTableStorage).render();
-});
-document.addEventListener('navigationLinkHasBeenClicked', (e) => {
-    if (!e.detail || !e.detail.link) {
+eventBus.on(Events.NAVIGATION_CLICKED, ({link}) => {
+    if (!link || !link.hasAttribute('data-filters')) {
         return;
     }
-    if (!e.detail.link.hasAttribute('data-dataTable-filters')) {
-        return;
-    }
-    const filters = JSON.parse(e.detail.link.getAttribute('data-dataTable-filters'));
+    const filters = JSON.parse(link.getAttribute('data-filters'));
     Object.entries(filters).forEach(([tableName, tableFilters]) => {
-        dataTableStorage.set(tableName, tableFilters);
+        FilterStorage.set(tableName, tableFilters);
     });
 });
-document.addEventListener('dataTableClusterWasChanged', () => {
-    modalManager.init(document);
+eventBus.on(Events.MODAL_LOADED, async ({node, modalName}) => {
+    initElements(node);
+
+    if (modalName === 'ai-chat') {
+        const {default: Chat} = await import(
+            /* webpackChunkName: "chat" */ './features/chat/chat'
+            );
+        new Chat(node).render();
+    }
 });
-window.addEventListener('resize', function () {
-    chartManager.resizeAll();
-});
-document.addEventListener('sidebarWasResized', function () {
-    chartManager.resizeAll();
+eventBus.on(Events.DATA_TABLE_CLUSTER_CHANGED, ({node}) => {
+    modalManager.init(node);
 });
 
 const $modalAIChat = document.querySelector('a[data-modal-custom-ai]');
@@ -113,18 +117,9 @@ if ($modalAIChat) {
         e.stopPropagation();
         const modalId = $modalAIChat.getAttribute('data-modal-custom-ai');
         modalManager.open(modalId);
-        // Add modal to history state.
         router.pushCurrentRouteToHistoryState(modalId);
     });
 }
-
-document.addEventListener('modalWasLoaded.ai-chat', async (e) => {
-    const {default: Chat} = await import(
-        /* webpackChunkName: "chat" */ './ui/chat'
-        );
-    const $modal = e.detail.modal;
-    new Chat($modal).render();
-});
 
 (async () => {
     await updateGithubLatestRelease();

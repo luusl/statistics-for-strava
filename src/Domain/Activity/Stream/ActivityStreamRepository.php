@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Activity\Stream;
 
 use App\Domain\Activity\ActivityId;
@@ -8,8 +10,6 @@ use App\Domain\Activity\ActivityIds;
 interface ActivityStreamRepository
 {
     public function add(ActivityStream $stream): void;
-
-    public function update(ActivityStream $stream): void;
 
     public function deleteForActivity(ActivityId $activityId): void;
 
@@ -22,10 +22,4 @@ interface ActivityStreamRepository
     public function findOneByActivityAndStreamType(ActivityId $activityId, StreamType $streamType): ActivityStream;
 
     public function findByActivityId(ActivityId $activityId): ActivityStreams;
-
-    public function findWithoutBestAverages(int $limit): ActivityStreams;
-
-    public function findWithoutNormalizedPower(int $limit): ActivityStreams;
-
-    public function findWithoutDistributionValues(int $limit): ActivityStreams;
 }

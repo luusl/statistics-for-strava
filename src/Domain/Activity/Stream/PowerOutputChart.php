@@ -24,30 +24,40 @@ final readonly class PowerOutputChart
     {
         $series = [];
         $maxPowerOutput = 100;
+
         foreach ($this->bestPowerOutputs as $bestPowerOutputs) {
-            /** @var PowerOutputs $powerOutputs */
             [$description, $powerOutputs] = $bestPowerOutputs;
-            $scalarPowerOutputs = $powerOutputs->map(fn (PowerOutput $powerOutput): int => $powerOutput->getPower());
+            assert($powerOutputs instanceof PowerOutputs);
+
+            $data = $powerOutputs->map(
+                fn (PowerOutput $powerOutput): array => [$powerOutput->getTimeIntervalInSeconds(), $powerOutput->getPower()]
+            );
+
+            if ([] === $data) {
+                continue; // @codeCoverageIgnore
+            }
+
+            $powers = $powerOutputs->map(fn (PowerOutput $powerOutput): int => $powerOutput->getPower());
+            $maxPowerOutput = max($maxPowerOutput, ...$powers);
+
             $series[] = [
                 'type' => 'line',
                 'name' => $description,
-                'smooth' => true,
+                'smooth' => 0.3,
                 'symbol' => 'none',
-                'data' => array_values($scalarPowerOutputs),
+                'data' => $data,
             ];
-
-            $maxPowerOutput = max($maxPowerOutput, ...$scalarPowerOutputs);
         }
 
-        $yAxisMaxValue = ceil($maxPowerOutput / 100) * 100;
-        $yAxisInterval = $yAxisMaxValue / 5;
+        $yAxisMaxValue = (int) (ceil($maxPowerOutput / 100) * 100);
+        $yAxisInterval = (int) ($yAxisMaxValue / 5);
 
         return [
             'animation' => true,
             'backgroundColor' => null,
             'grid' => [
-                'left' => '0%',
-                'right' => '0%',
+                'left' => '2px',
+                'right' => '10px',
                 'bottom' => '3%',
                 'containLabel' => true,
             ],
@@ -57,37 +67,17 @@ final readonly class PowerOutputChart
             'tooltip' => [
                 'show' => true,
                 'trigger' => 'axis',
+                'formatter' => 'callback:formatPowerDurationTooltip',
             ],
             'xAxis' => [
-                'type' => 'category',
-                'boundaryGap' => false,
+                'type' => 'log',
+                'min' => 1,
+                'max' => 3600,
                 'axisLabel' => [
-                    'interval' => 0,
+                    'formatter' => 'callback:formatDuration',
                 ],
-                'axisTick' => [
-                    'show' => false,
-                ],
-                'data' => [
-                    '1s',
-                    '5s',
-                    '',
-                    '15s',
-                    '',
-                    '',
-                    '1m',
-                    '2m',
-                    '',
-                    '',
-                    '5m',
-                    '',
-                    '8m',
-                    '',
-                    '',
-                    '20m',
-                    '30m',
-                    '',
-                    '',
-                    '1h',
+                'splitLine' => [
+                    'lineStyle' => ['type' => 'dashed'],
                 ],
             ],
             'yAxis' => [

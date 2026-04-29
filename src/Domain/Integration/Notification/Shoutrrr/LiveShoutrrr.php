@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Integration\Notification\Shoutrrr;
 
-use App\Infrastructure\Daemon\ProcessFactory;
+use App\Infrastructure\Process\ProcessFactory;
 
 final readonly class LiveShoutrrr implements Shoutrrr
 {

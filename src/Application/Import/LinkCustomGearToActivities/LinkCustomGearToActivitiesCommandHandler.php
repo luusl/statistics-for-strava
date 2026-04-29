@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Application\Import\LinkCustomGearToActivities;
 
 use App\Domain\Activity\Activity;
+use App\Domain\Activity\ActivityIdRepository;
 use App\Domain\Activity\ActivityRepository;
 use App\Domain\Activity\ActivityWithRawData;
-use App\Domain\Activity\ActivityWithRawDataRepository;
 use App\Domain\Gear\CustomGear\CustomGear;
 use App\Domain\Gear\CustomGear\CustomGearConfig;
 use App\Domain\Gear\CustomGear\CustomGearRepository;
-use App\Domain\Gear\ImportedGear\ImportedGearRepository;
 use App\Infrastructure\CQRS\Command\Command;
 use App\Infrastructure\CQRS\Command\CommandHandler;
 use App\Infrastructure\ValueObject\Measurement\Length\Kilometer;
@@ -20,10 +19,9 @@ use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 final readonly class LinkCustomGearToActivitiesCommandHandler implements CommandHandler
 {
     public function __construct(
-        private ImportedGearRepository $importedGearRepository,
         private CustomGearRepository $customGearRepository,
-        private ActivityWithRawDataRepository $activityWithRawDataRepository,
         private ActivityRepository $activityRepository,
+        private ActivityIdRepository $activityIdRepository,
         private CustomGearConfig $customGearConfig,
     ) {
     }
@@ -38,20 +36,15 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
 
         $command->getOutput()->writeln('Linking custom gear to activities...');
 
-        $importedGears = $this->importedGearRepository->findAll();
         $customGears = $this->customGearRepository->findAll();
         $allCustomGearTags = $customGears->map(static fn (CustomGear $customGear): string => $customGear->getTag());
-        $activities = $this->activityRepository->findAll();
+        $activityIdsWithoutStravaGear = $this->activityIdRepository->findAllWithoutStravaGear();
 
-        // Filter out activities that have a Strava gear linked,
-        // we only want to link custom gear to activities that do not have a Strava gear.
-        $activitiesWithoutStravaGear = $activities->filter(
-            fn (Activity $activity): bool => !$activity->getGearId() || !$importedGears->getByGearId($activity->getGearId())
-        );
         $activitiesWithCustomGearTag = [];
         $activitiesWithoutCustomGearTag = [];
 
-        foreach ($activitiesWithoutStravaGear as $activity) {
+        foreach ($activityIdsWithoutStravaGear as $activityId) {
+            $activity = $this->activityRepository->find($activityId);
             $matchedCustomGearTagsForActivity = array_filter(
                 $allCustomGearTags,
                 static fn (string $customGearTag): bool => 1 === preg_match('/(^|\s)'.preg_quote($customGearTag, '/').'(\s|$)/', $activity->getOriginalName())
@@ -74,13 +67,12 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
         }
 
         foreach ($activitiesWithoutCustomGearTag as $activity) {
-            $activityWithRawData = $this->activityWithRawDataRepository->find($activity->getId());
-            $activityRawData = $activityWithRawData->getRawData();
+            $activityWithRawData = $this->activityRepository->findWithRawData($activity->getId());
 
-            // Make sure any previous linked gear is removed.
-            $this->activityWithRawDataRepository->update(ActivityWithRawData::fromState(
+            // Make sure any previous linked custom gear is removed.
+            $this->activityRepository->update(ActivityWithRawData::fromState(
                 activity: $activity->withEmptyGear(),
-                rawData: $activityRawData
+                rawData: $activityWithRawData->getRawData()
             ));
         }
 
@@ -91,8 +83,7 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
 
             /** @var Activity $activity */
             foreach ($activitiesTaggedWithCustomGear as $activity) {
-                $activityWithRawData = $this->activityWithRawDataRepository->find($activity->getId());
-                $activityRawData = $activityWithRawData->getRawData();
+                $activityWithRawData = $this->activityRepository->findWithRawData($activity->getId());
 
                 // Link activity to custom gear.
                 $activity = $activity->withGear($customGear->getId());
@@ -102,9 +93,9 @@ final readonly class LinkCustomGearToActivitiesCommandHandler implements Command
                     $customGear->getDistance()->toFloat() + $activity->getDistance()->toFloat())->toMeter()
                 );
 
-                $this->activityWithRawDataRepository->update(ActivityWithRawData::fromState(
+                $this->activityRepository->update(ActivityWithRawData::fromState(
                     activity: $activity,
-                    rawData: $activityRawData
+                    rawData: $activityWithRawData->getRawData()
                 ));
             }
 
