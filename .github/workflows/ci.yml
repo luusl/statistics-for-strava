@@ -21,6 +21,7 @@ jobs:
         with:
           php-version: '8.5'
           coverage: xdebug
+          extensions: zstd
 
       # https://github.com/marketplace/actions/checkout
       - name: Checkout
@@ -29,10 +30,14 @@ jobs:
       - name: Copy .env file
         run: cp .env.test .env
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
       - name: Cache Composer dependencies
         uses: actions/cache@v5
         with:
-          path: vendor
+          path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
@@ -67,7 +72,7 @@ jobs:
           artifact_download_workflow_names: 'ci,coverage-report'
 
       - name: Add coverage PR comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         if: github.event.pull_request.user.login == 'robiningelbrecht' && steps.code_coverage_report_action.outputs.file != '' && github.event_name == 'pull_request' && (success() || failure())
         with:
           recreate: false

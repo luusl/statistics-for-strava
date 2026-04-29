@@ -7,11 +7,11 @@ use App\Domain\Activity\ActivityId;
 use App\Domain\Activity\ActivityIds;
 use App\Infrastructure\Console\ProvideConsoleIntro;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
-use App\Infrastructure\Daemon\Mutex\LockName;
-use App\Infrastructure\Daemon\Mutex\Mutex;
 use App\Infrastructure\DependencyInjection\Mutex\WithMutex;
 use App\Infrastructure\Doctrine\Migrations\MigrationRunner;
 use App\Infrastructure\Logging\LoggableConsoleOutput;
+use App\Infrastructure\Mutex\LockName;
+use App\Infrastructure\Mutex\Mutex;
 use App\Infrastructure\Time\ResourceUsage\ResourceUsage;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
@@ -55,13 +55,18 @@ final class ImportStravaDataConsoleCommand extends Command
             $restrictToActivityIds = ActivityIds::fromArray([ActivityId::fromUnprefixed($restrictToActivityId)]);
         }
 
-        $this->migrationRunner->run($output);
-        $this->mutex->acquireLock('ImportStravaDataConsoleCommand');
+        try {
+            $this->migrationRunner->run($output);
+            $this->mutex->acquireLock('ImportStravaDataConsoleCommand');
 
-        $this->commandBus->dispatch(new RunImport(
-            output: $output,
-            restrictToActivityIds: $restrictToActivityIds,
-        ));
+            $this->commandBus->dispatch(new RunImport(
+                output: $output,
+                restrictToActivityIds: $restrictToActivityIds,
+            ));
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
+            throw $e;
+        }
 
         $this->resourceUsage->stopTimer();
         $output->writeln(sprintf(

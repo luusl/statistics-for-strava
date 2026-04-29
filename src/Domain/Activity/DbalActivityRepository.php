@@ -7,7 +7,9 @@ namespace App\Domain\Activity;
 use App\Domain\Activity\Route\RouteGeography;
 use App\Domain\Activity\SportType\SportType;
 use App\Domain\Gear\GearId;
+use App\Domain\Integration\Weather\OpenMeteo\Weather;
 use App\Infrastructure\Exception\EntityNotFound;
+use App\Infrastructure\Repository\DbalRepository;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\ValueObject\Geography\Coordinate;
 use App\Infrastructure\ValueObject\Geography\Latitude;
@@ -15,39 +17,12 @@ use App\Infrastructure\ValueObject\Geography\Longitude;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Measurement\Velocity\KmPerHour;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 
-final class DbalActivityRepository implements ActivityRepository
+final readonly class DbalActivityRepository extends DbalRepository implements ActivityRepository
 {
-    /** @var array<string, Activity> */
-    private array $cachedActivities = [];
-
-    public function __construct(
-        private readonly Connection $connection,
-    ) {
-    }
-
     public function find(ActivityId $activityId): Activity
     {
-        if ([] === $this->cachedActivities) {
-            // Do an initial cache of all activities.
-            $queryBuilder = $this->connection->createQueryBuilder();
-            $results = $queryBuilder->select('*')
-                ->from('Activity')
-                ->executeQuery()
-                ->fetchAllAssociative();
-
-            foreach ($results as $result) {
-                $this->cachedActivities[$result['activityId']] = $this->hydrate($result);
-            }
-        }
-
-        if (array_key_exists((string) $activityId, $this->cachedActivities)) {
-            return $this->cachedActivities[(string) $activityId];
-        }
-
-        // Check if the activity has been added after the initial cache build,
-        // If so, hydrate and add it to cache.
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('*')
             ->from('Activity')
@@ -58,22 +33,185 @@ final class DbalActivityRepository implements ActivityRepository
             throw new EntityNotFound(sprintf('Activity "%s" not found', $activityId));
         }
 
-        $this->cachedActivities[(string) $activityId] = $this->hydrate($result);
-
-        return $this->cachedActivities[(string) $activityId];
+        return $this->hydrate($result);
     }
 
     public function findAll(): Activities
     {
+        $results = $this->connection->executeQuery(
+            'SELECT * FROM Activity ORDER BY startDateTime DESC'
+        )->fetchAllAssociative();
+
+        return Activities::fromArray(array_map($this->hydrate(...), $results));
+    }
+
+    public function findWithRawData(ActivityId $activityId): ActivityWithRawData
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*')
+            ->from('Activity')
+            ->andWhere('activityId = :activityId')
+            ->setParameter('activityId', $activityId);
+
+        if (!$result = $queryBuilder->executeQuery()->fetchAssociative()) {
+            throw new EntityNotFound(sprintf('Activity "%s" not found', $activityId));
+        }
+
+        return ActivityWithRawData::fromState(
+            activity: $this->hydrate($result),
+            rawData: Json::decode($result['data']),
+        );
+    }
+
+    public function exists(ActivityId $activityId): bool
+    {
+        return !empty($this->connection->executeQuery('SELECT 1 FROM Activity WHERE activityId = :activityId', [
+            'activityId' => $activityId,
+        ])->fetchOne());
+    }
+
+    public function add(ActivityWithRawData $activityWithRawData): void
+    {
+        $sql = 'INSERT INTO Activity (
+            activityId, startDateTime, sportType, activityType, worldType, name, description, distance,
+            elevation, startingCoordinateLatitude, startingCoordinateLongitude, calories,
+            averagePower, maxPower, averageSpeed, maxSpeed, averageHeartRate, maxHeartRate,
+            averageCadence,movingTimeInSeconds, kudoCount, deviceName, totalImageCount, localImagePaths,
+            polyline, routeGeography, weather, gearId, data, isCommute, streamsAreImported, workoutType
+        ) VALUES(
+            :activityId, :startDateTime, :sportType, :activityType, :worldType, :name, :description, :distance,
+            :elevation, :startingCoordinateLatitude, :startingCoordinateLongitude, :calories,
+            :averagePower, :maxPower, :averageSpeed, :maxSpeed, :averageHeartRate, :maxHeartRate,
+            :averageCadence, :movingTimeInSeconds, :kudoCount, :deviceName, :totalImageCount, :localImagePaths,
+            :polyline, :routeGeography, :weather, :gearId, :data, :isCommute, :streamsAreImported, :workoutType
+        )';
+
+        $activity = $activityWithRawData->getActivity();
+        $this->connection->executeStatement($sql, [
+            'activityId' => $activity->getId(),
+            'startDateTime' => $activity->getStartDate(),
+            'sportType' => $activity->getSportType()->value,
+            'worldType' => $activity->getWorldType()->value,
+            'activityType' => $activity->getSportType()->getActivityType()->value,
+            'name' => $activity->getOriginalName(),
+            'description' => $activity->getDescription(),
+            'distance' => $activity->getDistance()->toMeter()->toInt(),
+            'elevation' => $activity->getElevation()->toInt(),
+            'startingCoordinateLatitude' => $activity->getStartingCoordinate()?->getLatitude()->toFloat(),
+            'startingCoordinateLongitude' => $activity->getStartingCoordinate()?->getLongitude()->toFloat(),
+            'calories' => $activity->getCalories(),
+            'averagePower' => $activity->getAveragePower(),
+            'maxPower' => $activity->getMaxPower(),
+            'averageSpeed' => $activity->getAverageSpeed()->toFloat(),
+            'maxSpeed' => $activity->getMaxSpeed()->toFloat(),
+            'averageHeartRate' => $activity->getAverageHeartRate(),
+            'maxHeartRate' => $activity->getMaxHeartRate(),
+            'averageCadence' => $activity->getAverageCadence(),
+            'movingTimeInSeconds' => $activity->getMovingTimeInSeconds(),
+            'kudoCount' => $activity->getKudoCount(),
+            'deviceName' => $activity->getDeviceName(),
+            'totalImageCount' => $activity->getTotalImageCount(),
+            'localImagePaths' => implode(',', $activity->getLocalImagePaths()),
+            'polyline' => $activity->getEncodedPolyline(),
+            'routeGeography' => Json::encode($activity->getRouteGeography()),
+            'weather' => $activity->getWeather() instanceof Weather ? Json::encode($activity->getWeather()) : null,
+            'gearId' => $activity->getGearId(),
+            'data' => Json::encode($this->cleanData($activityWithRawData->getRawData())),
+            'isCommute' => (int) $activity->isCommute(),
+            'streamsAreImported' => 0,
+            'workoutType' => $activity->getWorkoutType()?->value,
+        ]);
+    }
+
+    public function update(ActivityWithRawData $activityWithRawData): void
+    {
+        $sql = 'UPDATE Activity SET 
+                    name = :name, 
+                    sportType = :sportType, 
+                    activityType = :activityType, 
+                    distance = :distance, 
+                    averageSpeed = :averageSpeed,
+                    maxSpeed = :maxSpeed,
+                    movingTimeInSeconds = :movingTimeInSeconds,
+                    elevation = :elevation,
+                    kudoCount = :kudoCount,
+                    polyline = :polyline,
+                    startingCoordinateLatitude = :startingCoordinateLatitude,
+                    startingCoordinateLongitude = :startingCoordinateLongitude,
+                    routeGeography = :routeGeography,
+                    gearId = :gearId, 
+                    totalImageCount = :totalImageCount,
+                    localImagePaths = :localImagePaths,
+                    data = :data,
+                    isCommute = :isCommute,
+                    workoutType = :workoutType    
+                    WHERE activityId = :activityId';
+
+        $activity = $activityWithRawData->getActivity();
+        $this->connection->executeStatement($sql, [
+            'activityId' => $activity->getId(),
+            'sportType' => $activity->getSportType()->value,
+            'activityType' => $activity->getSportType()->getActivityType()->value,
+            'name' => $activity->getOriginalName(),
+            'distance' => $activity->getDistance()->toMeter()->toInt(),
+            'elevation' => $activity->getElevation()->toInt(),
+            'averageSpeed' => $activity->getAverageSpeed()->toFloat(),
+            'maxSpeed' => $activity->getMaxSpeed()->toFloat(),
+            'movingTimeInSeconds' => $activity->getMovingTimeInSeconds(),
+            'kudoCount' => $activity->getKudoCount(),
+            'polyline' => $activity->getEncodedPolyline(),
+            'startingCoordinateLatitude' => $activity->getStartingCoordinate()?->getLatitude()->toFloat(),
+            'startingCoordinateLongitude' => $activity->getStartingCoordinate()?->getLongitude()->toFloat(),
+            'routeGeography' => Json::encode($activity->getRouteGeography()),
+            'gearId' => $activity->getGearId(),
+            'totalImageCount' => $activity->getTotalImageCount(),
+            'localImagePaths' => implode(',', $activity->getLocalImagePaths()),
+            'isCommute' => (int) $activity->isCommute(),
+            'workoutType' => $activity->getWorkoutType()?->value,
+            'data' => Json::encode($this->cleanData($activityWithRawData->getRawData())),
+        ]);
+    }
+
+    public function delete(ActivityId $activityId): void
+    {
+        $sql = 'DELETE FROM Activity WHERE activityId = :activityId';
+
+        $this->connection->executeStatement($sql, [
+            'activityId' => $activityId,
+        ]);
+    }
+
+    public function activityNeedsStreamImport(ActivityId $activityId): bool
+    {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('activityId')
             ->from('Activity')
-            ->orderBy('startDateTime', 'DESC');
+            ->andWhere('streamsAreImported = 0 OR streamsAreImported IS NULL')
+            ->andWhere('activityId = :activityId')
+            ->setParameter('activityId', $activityId);
 
-        return Activities::fromArray(array_map(
-            fn (string $activityId): Activity => $this->find(ActivityId::fromString($activityId)),
-            $queryBuilder->executeQuery()->fetchFirstColumn()
-        ));
+        return !empty($queryBuilder->fetchOne());
+    }
+
+    public function markActivityStreamsAsImported(ActivityId $activityId): void
+    {
+        $sql = 'UPDATE Activity SET streamsAreImported = 1 WHERE activityId = :activityId';
+
+        $this->connection->executeStatement($sql, [
+            'activityId' => $activityId,
+        ]);
+    }
+
+    public function markActivitiesForDeletion(ActivityIds $activityIds): void
+    {
+        $sql = 'UPDATE Activity SET markedForDeletion = 1 WHERE activityId IN (:activityIds)';
+
+        $this->connection->executeStatement($sql, [
+            'activityIds' => array_map(strval(...), $activityIds->toArray()),
+        ],
+            [
+                'activityIds' => ArrayParameterType::STRING,
+            ]);
     }
 
     /**
@@ -114,5 +252,19 @@ final class DbalActivityRepository implements ActivityRepository
             isCommute: (bool) $result['isCommute'],
             workoutType: WorkoutType::tryFrom($result['workoutType'] ?? ''),
         );
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<mixed>
+     */
+    private function cleanData(array $data): array
+    {
+        if (isset($data['map']['polyline'])) {
+            unset($data['map']['polyline']);
+        }
+
+        return $data;
     }
 }

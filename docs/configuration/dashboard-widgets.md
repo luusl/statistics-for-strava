@@ -15,13 +15,14 @@ appearance:
       - { 'widget': 'introText', 'width': 33, 'enabled': true }
       - { 'widget': 'trainingGoals', 'width': 33, 'enabled': false, 'config': { 'goals': [] } }
       - { 'widget': 'weeklyStats', 'width': 100, 'enabled': true, 'config': { 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
-      - { 'widget': 'activityGrid', 'width': 100, 'enabled': true }
+      - { 'widget': 'activityGrid', 'width': 100, 'enabled': true, 'config': { 'metricsDisplayOrder': ['load', 'movingTime', 'caloriesBurned'] } }
       - { 'widget': 'streaks', 'width': 33, 'enabled': true, config: { 'subtitle': null, 'sportTypesToInclude': [] } }
       - { 'widget': 'athleteProfile', 'width': 33, 'enabled': true }
       - { 'widget': 'eddington', 'width': 33, 'enabled': true }
       - { 'widget': 'peakPowerOutputs', 'width': 50, 'enabled': true }
       - { 'widget': 'heartRateZones', 'width': 50, 'enabled': true }
-      - { 'widget': 'monthlyStats', 'width': 100, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
+      - { 'widget': 'monthlyStats', 'width': 66, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
+      - { 'widget': 'mostRecentMilestones', 'width': 33, 'enabled': true, 'config': { 'numberOfMilestonesToDisplay': 5 } }
       - { 'widget': 'trainingLoad', 'width': 100, 'enabled': true }
       - { 'widget': 'weekdayStats', 'width': 50, 'enabled': true }
       - { 'widget': 'dayTimeStats', 'width': 50, 'enabled': true }
@@ -93,6 +94,9 @@ goal: 200
 # The sport types to include in this goal.
 # For a complete list of supported sport types, visit: https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/main-configuration?id=supported-sport-types
 sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide']
+# Optional: restrict this goal to a specific date range. When omitted, the goal is always active.
+# This allows you to adjust goals according to your training plan.
+restrictToDateRange: {from: '2026-01-01', to: '2026-03-31'}
 ```
 
 ### Example
@@ -123,6 +127,24 @@ sportTypesToInclude: ['Ride', 'MountainBikeRide', 'GravelRide', 'VirtualRide']
 }
 ```
 
+### Periodized goals
+
+You can use `restrictToDateRange` to vary your goals over time, matching your training plan.
+All goals whose date range includes the current date will be shown. There is no precedence between goals.
+If you want a date-ranged goal to replace a default one during a specific period, make sure to assign
+date ranges to **all** goals so they don't overlap.
+
+```yaml
+'weekly': [
+  # Base phase: Jan-Mar 2026
+  { label: 'Running (base)',  enabled: true, type: 'distance', unit: 'km', goal: 25,  sportTypesToInclude: ['Run'], restrictToDateRange: {from: '2026-01-01', to: '2026-03-31'} },
+  # Build phase: Apr 2026
+  { label: 'Running (build)', enabled: true, type: 'distance', unit: 'km', goal: 30,  sportTypesToInclude: ['Run'], restrictToDateRange: {from: '2026-04-01', to: '2026-04-30'} },
+  # Peak phase: May 2026
+  { label: 'Running (peak)',  enabled: true, type: 'distance', unit: 'km', goal: 40,  sportTypesToInclude: ['Run'], restrictToDateRange: {from: '2026-05-01', to: '2026-05-31'} },
+]
+```
+
 ![trainingGoals widget](../assets/images/dashboard-widgets/training-goals.png)
 
 ## weeklyStats
@@ -141,8 +163,10 @@ This widget provides a summary of your weekly statistics per sport type, includi
 
 This widget provides an overview your activities in a GitHub style graph.
 
+* __metricsDisplayOrder__: The order in which the metrics are displayed in the widget. Supported metrics are 'load', 'movingTime' and 'caloriesBurned'. All 3 metrics must be included.
+
 ```yml
-{ 'widget': 'activityGrid', 'width': 100, 'enabled': true }
+{ 'widget': 'activityGrid', 'width': 100, 'enabled': true, 'config': { 'metricsDisplayOrder': ['load', 'movingTime', 'caloriesBurned'] } }
 ```
 
 ![activityGrid widget](../assets/images/dashboard-widgets/activity-intensity.png)$
@@ -210,10 +234,20 @@ This widget displays your monthly statistics and lets you compare your performan
 * __metricsDisplayOrder__: The order in which the metrics are displayed in the widget. Supported metrics are 'distance', 'movingTime' and 'elevation'. All 3 metrics must be included.
 
 ```yml
-{ 'widget': 'monthlyStats', 'width': 100, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
+{ 'widget': 'monthlyStats', 'width': 66, 'enabled': true, 'config': { 'enableLastXYearsByDefault': 10, 'metricsDisplayOrder': ['distance', 'movingTime', 'elevation'] } }
 ```
 
-![monthlyStats widget](../assets/images/dashboard-widgets/monthly-stats.png)
+## mostRecentMilestones
+
+This widget displays a timeline view of your key achievements and milestones over time.
+
+* __numberOfMilestonesToDisplay__: the number of milestones to display.
+
+```yml
+{ 'widget': 'mostRecentMilestones', 'width': 33, 'enabled': true, 'config': { 'numberOfMilestonesToDisplay': 5 } }
+```
+
+![mostRecentMilestones widget](../assets/images/dashboard-widgets/most-recent-milestones.png)
 
 ## trainingLoad
 

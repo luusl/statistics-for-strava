@@ -11,7 +11,6 @@ use App\Infrastructure\ValueObject\Measurement\Time\Seconds;
 use App\Infrastructure\ValueObject\Measurement\Unit;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use App\Infrastructure\ValueObject\Measurement\Velocity\Pace;
-use Carbon\CarbonInterval;
 use Twig\Attribute\AsTwigFilter;
 use Twig\Attribute\AsTwigFunction;
 
@@ -69,7 +68,7 @@ final readonly class MeasurementTwigExtension
     {
         $pace = $pace->toUnitSystem($this->unitSystem);
 
-        return $this->formatDurationForHumans($pace->toInt());
+        return $this->formatDurationAsClock($pace->toInt());
     }
 
     #[AsTwigFunction('renderUnitSymbol')]
@@ -78,7 +77,6 @@ final readonly class MeasurementTwigExtension
         return match ($unitName) {
             'distance' => $this->unitSystem->distanceSymbol(),
             'elevation' => $this->unitSystem->elevationSymbol(),
-            'carbon-saved' => $this->unitSystem->carbonSavedSymbol(),
             'pace' => $this->unitSystem->paceSymbol(),
             default => throw new \RuntimeException(sprintf('Invalid unitName "%s"', $unitName)),
         };
@@ -97,6 +95,12 @@ final readonly class MeasurementTwigExtension
     #[AsTwigFilter('formatSeconds')]
     public function formatSeconds(Seconds $seconds): string
     {
-        return CarbonInterval::seconds($seconds->toInt())->cascade()->forHumans(['short' => true, 'minimumUnit' => 'minute']);
+        return $this->formatDurationAsHumanString($seconds->toInt());
+    }
+
+    #[AsTwigFilter('formatSecondsAsPaddedClock')]
+    public function formatSecondsAsPaddedClock(Seconds $seconds): string
+    {
+        return $this->formatDurationAsPaddedClock($seconds->toInt());
     }
 }

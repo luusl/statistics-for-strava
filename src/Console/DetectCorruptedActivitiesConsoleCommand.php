@@ -6,8 +6,8 @@ use App\Application\Import\DeleteActivitiesMarkedForDeletion\DeleteActivitiesMar
 use App\Domain\Activity\ActivityId;
 use App\Domain\Activity\ActivityIdRepository;
 use App\Domain\Activity\ActivityIds;
+use App\Domain\Activity\ActivityRepository;
 use App\Domain\Activity\ActivitySummaryRepository;
-use App\Domain\Activity\ActivityWithRawDataRepository;
 use App\Domain\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Activity\Stream\CombinedStream\CombinedActivityStreamRepository;
 use App\Domain\Strava\Webhook\WebhookAspectType;
@@ -16,10 +16,10 @@ use App\Domain\Strava\Webhook\WebhookEvent;
 use App\Domain\Strava\Webhook\WebhookEventRepository;
 use App\Infrastructure\Console\ProvideConsoleIntro;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
-use App\Infrastructure\Daemon\Mutex\LockName;
-use App\Infrastructure\Daemon\Mutex\Mutex;
 use App\Infrastructure\DependencyInjection\Mutex\WithMutex;
 use App\Infrastructure\Exception\EntityNotFound;
+use App\Infrastructure\Mutex\LockName;
+use App\Infrastructure\Mutex\Mutex;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -37,7 +37,7 @@ class DetectCorruptedActivitiesConsoleCommand extends Command
     public function __construct(
         private readonly ActivityIdRepository $activityIdRepository,
         private readonly ActivitySummaryRepository $activitySummaryRepository,
-        private readonly ActivityWithRawDataRepository $activityWithRawDataRepository,
+        private readonly ActivityRepository $activityRepository,
         private readonly ActivityStreamRepository $activityStreamRepository,
         private readonly CombinedActivityStreamRepository $combinedActivityStreamRepository,
         private readonly WebhookEventRepository $webhookEventRepository,
@@ -69,7 +69,7 @@ class DetectCorruptedActivitiesConsoleCommand extends Command
         foreach ($activityIds as $activityId) {
             $progressIndicator->advance();
             try {
-                $this->activityWithRawDataRepository->find($activityId);
+                $this->activityRepository->findWithRawData($activityId);
             } catch (\JsonException) {
                 $activityIdsToDelete->add($activityId);
                 continue;
@@ -116,7 +116,7 @@ class DetectCorruptedActivitiesConsoleCommand extends Command
             return Command::SUCCESS;
         }
 
-        $this->activityWithRawDataRepository->markActivitiesForDeletion($activityIdsToDelete);
+        $this->activityRepository->markActivitiesForDeletion($activityIdsToDelete);
         $this->commandBus->dispatch(new DeleteActivitiesMarkedForDeletion($output));
 
         if (!$this->webhookConfig->isEnabled()) {

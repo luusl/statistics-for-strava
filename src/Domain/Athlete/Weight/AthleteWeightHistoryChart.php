@@ -49,8 +49,8 @@ final readonly class AthleteWeightHistoryChart
             $athleteWeights,
         );
 
-        /** @var AthleteWeight $firstAthleteWeight */
         $firstAthleteWeight = reset($athleteWeights);
+        assert($firstAthleteWeight instanceof AthleteWeight);
 
         $zoomEndValue = $this->now->format('Y-m-d');
         $zoomStartValue = $firstAthleteWeight->getOn()->format('Y-m-d');
@@ -78,6 +78,7 @@ final readonly class AthleteWeightHistoryChart
             'backgroundColor' => null,
             'tooltip' => [
                 'trigger' => 'axis',
+                'formatter' => 'callback:formatDateOnlyTooltip',
             ],
             'grid' => [
                 'top' => '2%',
@@ -173,7 +174,7 @@ final readonly class AthleteWeightHistoryChart
                         $this->now->format('Y-m-d') != $athleteWeights[$lastKey]->getOn()->format('Y-m-d') ?
                         [
                             $this->now->format('Y-m-d'),
-                            round($athleteWeights[$lastKey]->getWeightInKg()->toFloat(), 1),
+                            round($athleteWeights[$lastKey]->getWeight()->toFloat(), 1),
                         ] : [],
                     ],
                 ],

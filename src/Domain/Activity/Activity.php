@@ -17,6 +17,7 @@ use App\Infrastructure\Serialization\Escape;
 use App\Infrastructure\Serialization\Json;
 use App\Infrastructure\Time\Format\ProvideTimeFormats;
 use App\Infrastructure\ValueObject\Geography\Coordinate;
+use App\Infrastructure\ValueObject\Geography\EncodedPolyline;
 use App\Infrastructure\ValueObject\Geography\Latitude;
 use App\Infrastructure\ValueObject\Geography\Longitude;
 use App\Infrastructure\ValueObject\Measurement\Length\Kilometer;
@@ -558,7 +559,7 @@ final class Activity implements SupportsAITooling
 
     public function getMovingTimeFormatted(): string
     {
-        return $this->formatDurationForHumans($this->getMovingTimeInSeconds());
+        return $this->formatDurationAsClock($this->getMovingTimeInSeconds());
     }
 
     public function getUrl(): string
@@ -566,9 +567,9 @@ final class Activity implements SupportsAITooling
         return 'https://www.strava.com/activities/'.$this->getId()->toUnprefixedString();
     }
 
-    public function getPolyline(): ?string
+    public function getEncodedPolyline(): ?EncodedPolyline
     {
-        return $this->polyline;
+        return EncodedPolyline::fromOptionalString($this->polyline);
     }
 
     public function withPolyline(?string $polyline): self
@@ -629,7 +630,7 @@ final class Activity implements SupportsAITooling
 
     public function getLeafletMap(): ?LeafletMap
     {
-        if (!$this->getPolyline()) {
+        if (!$this->getEncodedPolyline() instanceof EncodedPolyline) {
             return null;
         }
         if (!$this->isZwiftRide()) {
@@ -693,7 +694,7 @@ final class Activity implements SupportsAITooling
     /**
      * @return array<string, string|int|string[]>
      */
-    public function getFilterables(): array
+    public function getFilterables(UnitSystem $unitSystem): array
     {
         return array_filter([
             'sportType' => $this->getSportType()->value,
@@ -703,6 +704,8 @@ final class Activity implements SupportsAITooling
             'gear' => $this->getGearIdIncludingNone(),
             'workoutType' => $this->getWorkoutType()?->value,
             'device' => $this->getDeviceId(),
+            'distance' => (int) round($this->getDistance()->toUnitSystem($unitSystem)->toFloat() * 10), // We don't want to filter on float values, but integers instead.
+            'elevation' => (int) round($this->getElevation()->toUnitSystem($unitSystem)->toFloat() * 10),
         ]);
     }
 
@@ -722,11 +725,11 @@ final class Activity implements SupportsAITooling
 
         return array_filter(array_merge([
             'start-date' => $this->getStartDate()->getTimestamp(),
-            'distance' => round($this->getDistance()->toFloat(), 2),
-            'elevation' => $this->getElevation()->toFloat(),
+            'distance' => (int) ($this->getDistance()->toFloat() * 1000),
+            'elevation' => (int) ($this->getElevation()->toFloat() * 1000),
             'moving-time' => $this->getMovingTimeInSeconds(),
             'power' => $this->getAveragePower(),
-            'speed' => round($this->getAverageSpeed()->toFloat(), 1),
+            'speed' => (int) ($this->getAverageSpeed()->toFloat() * 1000),
             'heart-rate' => $this->getAverageHeartRate(),
             'calories' => $this->getCalories(),
         ], $bestAveragePowerSortables));

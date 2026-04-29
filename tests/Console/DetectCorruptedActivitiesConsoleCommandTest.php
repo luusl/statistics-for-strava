@@ -4,13 +4,14 @@ namespace App\Tests\Console;
 
 use App\Console\DetectCorruptedActivitiesConsoleCommand;
 use App\Domain\Activity\ActivityId;
+use App\Domain\Activity\ActivityRepository;
 use App\Domain\Activity\ActivityWithRawData;
-use App\Domain\Activity\ActivityWithRawDataRepository;
 use App\Domain\Activity\SportType\SportType;
 use App\Domain\Activity\Stream\CombinedStream\CombinedStreamType;
 use App\Domain\Activity\Stream\StreamType;
 use App\Domain\Activity\WorldType;
 use App\Infrastructure\ValueObject\Measurement\UnitSystem;
+use App\Infrastructure\ValueObject\String\CompressedString;
 use App\Tests\Domain\Activity\ActivityBuilder;
 use Spatie\Snapshots\MatchesSnapshots;
 use Symfony\Component\Console\Command\Command;
@@ -96,37 +97,39 @@ class DetectCorruptedActivitiesConsoleCommandTest extends ConsoleCommandTestCase
             ]
         );
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+        $this->getContainer()->get(ActivityRepository::class)->add(ActivityWithRawData::fromState(
             activity: ActivityBuilder::fromDefaults()
                 ->withActivityId(ActivityId::fromUnprefixed('test-2'))
                 ->build(),
             rawData: []
         ));
         $this->getConnection()->executeStatement(
-            'INSERT INTO ActivityStream(activityId, streamType, createdOn, data) 
-                VALUES (:activityId, :streamType, :createdOn, :data)',
+            'INSERT INTO ActivityStream(activityId, streamType, createdOn, data, dataSize) 
+                VALUES (:activityId, :streamType, :createdOn, :data, :dataSize)',
             [
                 'activityId' => 'activity-test-2',
                 'streamType' => StreamType::DISTANCE->value,
                 'createdOn' => '2026-01-06',
-                'data' => '{"name": "Ride", "distance": 42,}',
+                'data' => (string) CompressedString::fromUncompressed('{"name": "Ride", "distance": 42,}'),
+                'dataSize' => 2,
             ]
         );
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+        $this->getContainer()->get(ActivityRepository::class)->add(ActivityWithRawData::fromState(
             activity: ActivityBuilder::fromDefaults()
                 ->withActivityId(ActivityId::fromUnprefixed('test-3'))
                 ->build(),
             rawData: []
         ));
         $this->getConnection()->executeStatement(
-            'INSERT INTO CombinedActivityStream(activityId, unitSystem, streamTypes, data) 
-                VALUES (:activityId, :unitSystem, :streamTypes, :data)',
+            'INSERT INTO CombinedActivityStream(activityId, unitSystem, streamTypes, data, maxYAxisValue) 
+                VALUES (:activityId, :unitSystem, :streamTypes, :data, :maxYAxisValue)',
             [
                 'activityId' => 'activity-test-3',
                 'unitSystem' => UnitSystem::METRIC->value,
                 'streamTypes' => CombinedStreamType::DISTANCE->value,
-                'data' => '{"name": "Ride", "distance": 42,}',
+                'data' => CompressedString::fromUncompressed('{"name": "Ride", "distance": 42,}'),
+                'maxYAxisValue' => 4,
             ]
         );
 

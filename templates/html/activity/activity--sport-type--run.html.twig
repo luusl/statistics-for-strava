@@ -21,6 +21,15 @@
                 <dt class="font-extrabold">{{ activity.getPaceInSecPerKm()|formatPace }}</dt>
             </div>
         </div>
+        {% set overallGap = splits.getOverallGapPaceInSecondsPerKm() %}
+        {%- if overallGap %}
+        <div class="w-1/7 min-w-25 flex flex-col items-center justify-center overflow-hidden px-2 py-2 border border-gray-200 rounded-lg shadow-sm">
+            <div class="text-center">
+                <dd class="text-xs text-gray-500">{{ "GAP"|trans }}</dd>
+                <dt class="font-extrabold">{{ overallGap|formatPace }}</dt>
+            </div>
+        </div>
+        {% endif %}
         <div class="w-1/7 min-w-25 flex flex-col items-center justify-center overflow-hidden px-2 py-2 border border-gray-200 rounded-lg shadow-sm">
             <div class="text-center">
                 <dd class="text-xs text-gray-500">{{ "Elevation"|trans }}</dd>
@@ -37,7 +46,7 @@
             <div class="text-center">
                 <dd class="text-xs text-gray-500">{{ "Gear"|trans }}</dd>
                 <dt class="text-xs font-extrabold">
-                    <a href="#" data-router-navigate="{{ relativeUrl('activities') }}" data-router-force-reload data-dataTable-filters='{"activities":{"gear":"{{ activity.getGearIdIncludingNone() }}"}}' class="text-blue-600 hover:underline">
+                    <a href="#" data-router-navigate="{{ relativeUrl('activities') }}" data-router-force-reload data-filters='{{ dataFilters('activities', {gear: activity.getGearIdIncludingNone()}) }}' class="text-blue-600 hover:underline">
                         {{ activity.getGearName() ?: 'Unspecified'|trans }}
                     </a>
                 </dt>
@@ -47,7 +56,7 @@
             <div class="text-center">
                 <dd class="text-xs text-gray-500">{{ "Device"|trans }}</dd>
                 <dt class="text-xs font-extrabold">
-                    <a href="#" data-router-navigate="{{ relativeUrl('activities') }}" data-router-force-reload data-dataTable-filters='{"activities":{"device":"{{ activity.getDeviceId() }}"}}' class="text-blue-600 hover:underline">
+                    <a href="#" data-router-navigate="{{ relativeUrl('activities') }}" data-router-force-reload data-filters='{{ dataFilters('activities', {device: activity.getDeviceId()}) }}' class="text-blue-600 hover:underline">
                         {{ activity.getDeviceName() ?: 'None'|trans }}
                     </a>
                 </dt>
@@ -84,6 +93,11 @@
                             <div class="bg-white sticky top-0 pt-2 flex items-center text-xs text-gray-700 uppercase font-bold">
                                 <div class="w-8 px-2 py-2">{{ renderUnitSymbol('distance') }}</div>
                                 <div class="w-20 px-2 py-2">{{ "Pace"|trans }}</div>
+                                {% if splits.hasGapPace() %}
+                                    <div class="w-20 px-2 py-2">
+                                       {{ "GAP"|trans }}
+                                    </div>
+                                {% endif %}
                                 <div class="grow min-w-40 px-2 py-2"></div>
                                 <div class="w-20 px-2 py-2">{{ "Elev"|trans }}</div>
                                 <div class="w-20 px-2 py-2">{{ "HR"|trans }}</div>
@@ -96,6 +110,12 @@
                                     <div class="w-20 px-2 py-2">
                                         {{ split.getPaceInSecPerKm()|formatPace }}
                                     </div>
+                                    {% set gapPaceInSecondsPerKm = split.getGapPaceInSecondsPerKm() %}
+                                    {% if gapPaceInSecondsPerKm %}
+                                        <div class="w-20 px-2 py-2">
+                                            {{ gapPaceInSecondsPerKm|formatPace }}
+                                        </div>
+                                    {% endif %}
                                     <div class="grow min-w-40 px-2 py-2">
                                         <div class=" bg-gray-200 rounded-full h-2.5">
                                             <div class="bg-strava-orange h-2.5 rounded-full" style="width: {{ split.getRelativePacePercentage() }}%"></div>

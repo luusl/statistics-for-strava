@@ -4,10 +4,10 @@ namespace App\Tests\Application\Import\DeleteActivitiesMarkedForDeletion;
 
 use App\Application\Import\DeleteActivitiesMarkedForDeletion\DeleteActivitiesMarkedForDeletion;
 use App\Domain\Activity\ActivityId;
+use App\Domain\Activity\ActivityIdRepository;
 use App\Domain\Activity\ActivityIds;
 use App\Domain\Activity\ActivityRepository;
 use App\Domain\Activity\ActivityWithRawData;
-use App\Domain\Activity\ActivityWithRawDataRepository;
 use App\Domain\Activity\BestEffort\ActivityBestEffortRepository;
 use App\Domain\Activity\Lap\ActivityLapRepository;
 use App\Domain\Activity\Split\ActivitySplitRepository;
@@ -40,14 +40,14 @@ class DeleteActivitiesMarkedForDeletionCommandHandlerTest extends ContainerTestC
     {
         $output = new SpyOutput();
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+        $this->getContainer()->get(ActivityRepository::class)->add(ActivityWithRawData::fromState(
             ActivityBuilder::fromDefaults()
                 ->withActivityId(ActivityId::fromUnprefixed(4))
                 ->build(),
             []
         ));
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+        $this->getContainer()->get(ActivityRepository::class)->add(ActivityWithRawData::fromState(
             ActivityBuilder::fromDefaults()
                 ->withActivityId(ActivityId::fromUnprefixed(1000))
                 ->withKudoCount(1)
@@ -66,7 +66,7 @@ class DeleteActivitiesMarkedForDeletionCommandHandlerTest extends ContainerTestC
             ->build();
         $this->getContainer()->get(ActivityStreamRepository::class)->add($stream);
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+        $this->getContainer()->get(ActivityRepository::class)->add(ActivityWithRawData::fromState(
             ActivityBuilder::fromDefaults()
                 ->withKudoCount(1)
                 ->withName('Delete this one as well')
@@ -105,7 +105,7 @@ class DeleteActivitiesMarkedForDeletionCommandHandlerTest extends ContainerTestC
             ->withActivityId(ActivityId::fromUnprefixed(1001))
             ->build());
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->markActivitiesForDeletion(ActivityIds::fromArray([
+        $this->getContainer()->get(ActivityRepository::class)->markActivitiesForDeletion(ActivityIds::fromArray([
             ActivityId::fromUnprefixed(1000),
             ActivityId::fromUnprefixed(1001),
         ]));
@@ -113,9 +113,9 @@ class DeleteActivitiesMarkedForDeletionCommandHandlerTest extends ContainerTestC
         $this->commandBus->dispatch(new DeleteActivitiesMarkedForDeletion($output));
         $this->assertMatchesTextSnapshot($output);
 
-        $this->assertCount(
+        $this->assertEquals(
             1,
-            $this->getContainer()->get(ActivityRepository::class)->findAll()->toArray()
+            $this->getContainer()->get(ActivityIdRepository::class)->count()
         );
         $this->assertCount(
             0,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Gear\ImportedGear;
 
 use App\Domain\Activity\ActivityIds;
@@ -67,8 +69,8 @@ final readonly class DbalImportedGearRepository extends DbalRepository implement
     private function enrichGears(Gears $gears): Gears
     {
         $enrichedGears = Gears::empty();
-        /** @var ImportedGear $gear */
         foreach ($gears as $gear) {
+            assert($gear instanceof ImportedGear);
             $enrichedGears->add($this->importedGearConfig->enrichGearWithCustomData($gear));
         }
 

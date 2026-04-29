@@ -4,8 +4,8 @@ namespace App\Tests\Application\Build\BuildGearStatsHtml;
 
 use App\Application\Build\BuildGearStatsHtml\BuildGearStatsHtml;
 use App\Domain\Activity\ActivityId;
+use App\Domain\Activity\ActivityRepository;
 use App\Domain\Activity\ActivityWithRawData;
-use App\Domain\Activity\ActivityWithRawDataRepository;
 use App\Domain\Gear\GearId;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Tests\Application\BuildAppFilesTestCase;
@@ -17,10 +17,35 @@ class BuildGearStatsHtmlCommandHandlerTest extends BuildAppFilesTestCase
     {
         $this->provideFullTestSet();
 
-        $this->getContainer()->get(ActivityWithRawDataRepository::class)->add(ActivityWithRawData::fromState(
+        $this->getContainer()->get(ActivityRepository::class)->add(ActivityWithRawData::fromState(
             activity: ActivityBuilder::fromDefaults()
                 ->withActivityId(ActivityId::fromUnprefixed('testy'))
                 ->withGearId(GearId::fromUnprefixed('testy'))
+                ->build(),
+            rawData: []
+        ));
+
+        $this->commandBus->dispatch(new BuildGearStatsHtml(SerializableDateTime::fromString('2023-10-17 16:15:04')));
+        $this->assertFileSystemWrites($this->getContainer()->get('build.storage'));
+    }
+
+    public function testHandleWithoutUnspecifiedGear(): void
+    {
+        $this->addGeneralFixtures();
+        $this->addGearFixtures();
+
+        $activityRepository = $this->getContainer()->get(ActivityRepository::class);
+        $activityRepository->add(ActivityWithRawData::fromState(
+            activity: ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('1'))
+                ->withGearId(GearId::fromUnprefixed('b12659861'))
+                ->build(),
+            rawData: []
+        ));
+        $activityRepository->add(ActivityWithRawData::fromState(
+            activity: ActivityBuilder::fromDefaults()
+                ->withActivityId(ActivityId::fromUnprefixed('2'))
+                ->withGearId(GearId::fromUnprefixed('b12659862'))
                 ->build(),
             rawData: []
         ));

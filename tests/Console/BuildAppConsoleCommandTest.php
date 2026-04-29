@@ -6,8 +6,8 @@ use App\Application\AppUrl;
 use App\Console\BuildAppConsoleCommand;
 use App\Infrastructure\CQRS\Command\Bus\CommandBus;
 use App\Infrastructure\CQRS\Command\DomainCommand;
-use App\Infrastructure\Daemon\Mutex\LockName;
-use App\Infrastructure\Daemon\Mutex\Mutex;
+use App\Infrastructure\Mutex\LockName;
+use App\Infrastructure\Mutex\Mutex;
 use App\Infrastructure\Serialization\Json;
 use App\Tests\Infrastructure\Time\Clock\PausedClock;
 use App\Tests\Infrastructure\Time\ResourceUsage\FixedResourceUsage;
@@ -38,6 +38,30 @@ class BuildAppConsoleCommandTest extends ConsoleCommandTestCase
         $this->logger
             ->expects($this->atLeastOnce())
             ->method('info');
+
+        $command = $this->getCommandInApplication('app:strava:build-files');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $command->getName(),
+        ]);
+
+        $this->assertMatchesSnapshot($commandTester->getDisplay(), new ConsoleOutputSnapshotDriver());
+        $this->assertMatchesJsonSnapshot(Json::encode($dispatchedCommands));
+    }
+
+    public function testExecuteWhenExceptionIsThrown(): void
+    {
+        $dispatchedCommands = [];
+        $this->commandBus
+            ->expects($this->atLeastOnce())
+            ->method('dispatch')
+            ->willThrowException(new \RuntimeException('OH NO ERROR'));
+
+        $this->logger
+            ->expects($this->once())
+            ->method('error');
+
+        $this->expectExceptionObject(new \RuntimeException('OH NO ERROR'));
 
         $command = $this->getCommandInApplication('app:strava:build-files');
         $commandTester = new CommandTester($command);
