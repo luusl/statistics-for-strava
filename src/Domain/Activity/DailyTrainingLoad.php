@@ -3,7 +3,6 @@
 namespace App\Domain\Activity;
 
 use App\Domain\Athlete\AthleteRepository;
-use App\Domain\Athlete\HeartRateZone\HeartRateZoneConfiguration;
 use App\Domain\Ftp\FtpHistory;
 use App\Infrastructure\Exception\EntityNotFound;
 use App\Infrastructure\ValueObject\Measurement\Time\Seconds;
@@ -19,7 +18,6 @@ final class DailyTrainingLoad
         private readonly ActivityIntensity $activityIntensity,
         private readonly FtpHistory $ftpHistory,
         private readonly AthleteRepository $athleteRepository,
-        private readonly HeartRateZoneConfiguration $heartRateZoneConfiguration,
     ) {
     }
 
@@ -54,18 +52,8 @@ final class DailyTrainingLoad
             try {
                 $intensity = $this->activityIntensity->calculateHeartRateBased($activity->getId());
                 $intensity /= 100;
-                $athlete = $this->athleteRepository->find();
-                $bannisterKFactor = $athlete->isMale() ? 1.92 : 1.67;
-                $trimp = Seconds::from($movingTimeInSeconds)->toMinute()->toFloat() * $intensity * exp($bannisterKFactor * $intensity);
-
-                // Normalize TRIMP to hrTSS so it's on the same scale as power-based TSS.
-                $athleteMaxHeartRate = $athlete->getMaxHeartRate($activity->getStartDate());
-                $restingHeartRateFormula = $athlete->getRestingHeartRate($activity->getStartDate());
-                $heartRateZones = $this->heartRateZoneConfiguration->getHeartRateZonesFor($activity->getSportType(), $activity->getStartDate());
-                $lthrBpm = $heartRateZones->getZoneFive()->getRangeInBpm($athleteMaxHeartRate)[0];
-                $hrrThreshold = ($lthrBpm - $restingHeartRateFormula) / ($athleteMaxHeartRate - $restingHeartRateFormula);
-                $trimpThreshold = 60 * $hrrThreshold * exp($bannisterKFactor * $hrrThreshold);
-                $load += ($trimp / $trimpThreshold) * 100;
+                $bannisterKFactor = $this->athleteRepository->find()->isMale() ? 1.92 : 1.67;
+                $load += Seconds::from($movingTimeInSeconds)->toMinute()->toFloat() * $intensity * exp($bannisterKFactor * $intensity);
             } catch (CouldNotDetermineActivityIntensity) {
             }
         }
