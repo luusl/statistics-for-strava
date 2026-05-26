@@ -1,4 +1,7 @@
 import {fetchJson} from "../../utils";
+import L from 'leaflet';
+import {createMapToolsControl} from "./leaflet-controls";
+import 'leaflet-gesture-handling';
 
 export default class LeafletMap {
     constructor(mapNode, data) {
@@ -6,6 +9,7 @@ export default class LeafletMap {
         this.data = data;
 
         this.map = L.map(mapNode, {
+            gestureHandling: data.scrollWheelZoom || false,
             scrollWheelZoom: data.scrollWheelZoom || false,
             minZoom: data.minZoom,
             maxZoom: data.maxZoom,
@@ -16,6 +20,7 @@ export default class LeafletMap {
         if (data.tileLayer) {
             L.tileLayer(data.tileLayer).addTo(this.map);
         }
+
     }
 
     async addRoutes() {
@@ -47,14 +52,7 @@ export default class LeafletMap {
 
         featureGroup.addTo(this.map);
         this.map.fitBounds(featureGroup.getBounds(), {maxZoom: this.data.maxZoom});
-    }
-
-    addGpxControl() {
-        if (!this.data.gpxLink) {
-            return;
-        }
-
-        L.control.downloadGpx({gpxLink: this.data.gpxLink}).addTo(this.map);
+        this.map.addControl(createMapToolsControl({bounds: featureGroup.getBounds()}));
     }
 
     async connectToEChart() {

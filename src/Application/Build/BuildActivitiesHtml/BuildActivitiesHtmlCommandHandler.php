@@ -16,6 +16,7 @@ use App\Domain\Activity\LeafletMap;
 use App\Domain\Activity\PowerDistributionChart;
 use App\Domain\Activity\Split\ActivitySplitRepository;
 use App\Domain\Activity\SportType\SportTypeRepository;
+use App\Domain\Activity\Stream\ActivityHeartRateRepository;
 use App\Domain\Activity\Stream\ActivityPowerRepository;
 use App\Domain\Activity\Stream\ActivityStreamRepository;
 use App\Domain\Activity\Stream\CombinedStream\CombinedActivityStreamRepository;
@@ -47,6 +48,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         private EnrichedActivities $enrichedActivities,
         private ActivityStreamRepository $activityStreamRepository,
         private ActivityStreamMetricRepository $activityStreamMetricRepository,
+        private ActivityHeartRateRepository $activityHeartRateRepository,
         private CombinedActivityStreamRepository $combinedActivityStreamRepository,
         private ActivitySplitRepository $activitySplitRepository,
         private ActivityLapRepository $activityLapRepository,
@@ -106,7 +108,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             $heartRateDistribution = $valueDistributionMetrics->filterOnStreamType(StreamType::HEART_RATE)?->getData() ?? [];
             if ($activity->getAverageHeartRate() && [] !== $heartRateDistribution) {
                 $distributionCharts[] = [
-                    'title' => $this->translator->trans('Heart rate distribution'),
+                    'title' => $this->translator->trans('Heart rate'),
                     'data' => Json::encode(HeartRateDistributionChart::create(
                         heartRateData: $heartRateDistribution,
                         averageHeartRate: $activity->getAverageHeartRate(),
@@ -139,7 +141,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
 
                 if (!is_null($powerDistributionChart)) {
                     $distributionCharts[] = [
-                        'title' => $this->translator->trans('Power distribution'),
+                        'title' => $this->translator->trans('Power'),
                         'data' => Json::encode($powerDistributionChart),
                     ];
                 }
@@ -159,8 +161,8 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                 if (!is_null($velocityDistributionChart)) {
                     $distributionCharts[] = [
                         'title' => match (true) {
-                            $velocityUnitPreference instanceof KmPerHour => $this->translator->trans('Speed distribution'),
-                            default => $this->translator->trans('Pace distribution'),
+                            $velocityUnitPreference instanceof KmPerHour => $this->translator->trans('Speed'),
+                            default => $this->translator->trans('Pace'),
                         },
                         'data' => Json::encode($velocityDistributionChart),
                     ];
@@ -177,7 +179,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
 
                 if (!is_null($cadenceDistributionChart)) {
                     $distributionCharts[] = [
-                        'title' => $this->translator->trans('Cadence distribution'),
+                        'title' => $this->translator->trans('Cadence'),
                         'data' => Json::encode($cadenceDistributionChart),
                     ];
                 }
@@ -251,6 +253,12 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             $gpxFileLocation = sprintf('api/activity/%s/route.gpx', $unprefixedActivityId);
             $activityHasTimeStream = $this->activityStreamRepository->hasOneForActivityAndStreamType($activity->getId(), StreamType::TIME);
 
+            $timeInHeartRateZones = null;
+            try {
+                $timeInHeartRateZones = $this->activityHeartRateRepository->findTotalTimeInSecondsInHeartRateZonesForActivity($activity->getId());
+            } catch (EntityNotFound) {
+            }
+
             $this->buildStorage->write(
                 'activity/'.$activity->getId().'.html',
                 $this->twig->load($templateName)->render([
@@ -258,8 +266,8 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     'leaflet' => $leafletMap instanceof LeafletMap ? [
                         'polylineUrl' => $polylinesFileLocation,
                         'map' => $leafletMap,
-                        'gpxLink' => $activityHasTimeStream ? $gpxFileLocation : null,
                     ] : null,
+                    'gpxLink' => $activityHasTimeStream ? $gpxFileLocation : null,
                     'distributionCharts' => $distributionCharts,
                     'segmentEfforts' => $this->segmentEffortRepository->findByActivityId($activity->getId()),
                     'splits' => $activitySplits,
@@ -267,6 +275,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
                     'profileChartHeight' => $profileChartHeight,
                     'hasProfileChart' => null !== $profileChart,
                     'bestEfforts' => $this->bestEffortsCalculator->forActivity($activity->getId()),
+                    'heartRateZones' => $timeInHeartRateZones,
                 ]),
             );
 

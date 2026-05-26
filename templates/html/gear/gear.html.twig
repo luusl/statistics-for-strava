@@ -26,74 +26,54 @@
                 {% endif %}
             </div>
             <div class="relative overflow-x-auto">
-                <table class="w-full text-sm text-center text-gray-500" data-accordion="table-gear"
+                <table class="data-table" data-accordion="table-gear"
                        data-active-classes="text-gray-500" data-inactive-classes="text-gray-500">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <thead>
                     <tr>
-                        <th rowspan="2" scope="col" class="px-2 py-3 sticky left-0 bg-gray-50">
+                        <th rowspan="2" scope="col" class="sticky left-0 bg-gray-50">
 
                         </th>
-                        <th rowspan="2" scope="col" class="px-6 py-3">
+                        <th rowspan="2" scope="col">
                             # {{ "workouts"|trans }}
                         </th>
-                        <th rowspan="2" scope="col" class="px-6 py-3">
-                            <div class="flex items-center justify-center">
-                                {{ svg('distance') }}
-                            </div>
+                        <th rowspan="2" scope="col">
+                            {{ "Dist."|trans }}
                         </th>
-                        <th rowspan="2" scope="col" class="px-6 py-3">
-                            <div class="flex items-center justify-center">
-                                {{ svg('elevation') }}
-                            </div>
+                        <th rowspan="2" scope="col">
+                            {{ "Elev."|trans }}
                         </th>
-                        <th rowspan="2" scope="col" class="px-6 py-3">
-                            <div class="flex items-center justify-center">
-                                {{ svg('time') }}
-                            </div>
+                        <th rowspan="2" scope="col">
+                            {{ "Moving time"|trans }}
                         </th>
-                        <th rowspan="2" scope="col" class="px-6 py-3">
-                            <div class="flex items-center justify-center">
-                                {{ svg('speed') }}
-                            </div>
+                        <th rowspan="2" scope="col">
+                            {{ "Speed"|trans }}
                         </th>
-                        <th rowspan="2" scope="col" class="px-2 py-3">
-                            <div class="flex items-center justify-center">
-                                {{ svg('calories') }}
-                            </div>
+                        <th rowspan="2" scope="col">
+                            {{ "Cal."|trans }}
                         </th>
-                        <th rowspan="2" scope="col" class="px-2 py-3">
-                            <div class="flex items-center justify-center">
-                                {{ svg('wallet') }}
-                            </div>
+                        <th rowspan="2" scope="col">
+                            {{ "Purchase price"|trans }}
                         </th>
-                        <th colspan="3" scope="col" class="px-2 py-3">
+                        <th colspan="3" scope="col">
                             {{ "Relative cost"|trans }}
-                        </th>
-                    </tr>
-                    <tr>
-                        <th scope="col" class="px-2 pb-3 truncate font-normal normal-case">
-                            {{ "per hour"|trans }}
-                        </th>
-                        <th scope="col" class="px-2 pb-3 truncate font-normal normal-case">
-                            {{ "per activity"|trans }}
-                        </th>
-                        <th scope="col" class="px-2 pb-3 truncate font-normal normal-case">
-                            {{ "per"|trans }} {{ renderUnitSymbol('distance') }}
+                            <div class="font-normal normal-case">
+                                {{ "per hour"|trans }} /
+                                {{ "per activity"|trans }} /
+                                {{ "per"|trans }} {{ renderUnitSymbol('distance') }}
+                            </div>
                         </th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% set globalLoopIndex = 0 %}
                     {% for gear in activeGear %}
-                        {{ _self.gearStatisticRow(gear, globalLoopIndex, unitSystem) }}
-                        {% set globalLoopIndex = globalLoopIndex + 1 %}
+                        {{ _self.gearStatisticRow(gear, unitSystem) }}
                     {% endfor %}
                     {% if retiredGear is not empty %}
-                        <tr class="cursor-pointer {{ cycle(['bg-white border-b', 'border-b bg-gray-50'], globalLoopIndex) }}"
+                        <tr class="group/row cursor-pointer"
                             id="table-retired-gear-header"
                             data-accordion-target="#table-retired-gear-content"
                             aria-expanded="false" aria-controls="table-retired-gear-content">
-                            <td class="px-6 py-2 sticky left-0 whitespace-nowrap {{ cycle(['bg-white', 'bg-gray-50'], globalLoopIndex) }}">
+                            <td class="sticky left-0 whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-x-2 text-gray-700 hover:underline">
                                     <svg data-accordion-icon class="size-2 rotate-180 shrink-0" aria-hidden="true"
                                          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -106,14 +86,12 @@
                             </td>
                             <td colspan="9"></td>
                         </tr>
-                        {% set globalLoopIndex = globalLoopIndex + 1 %}
                         </tbody>
                         <tbody class="hidden"
                                id="table-retired-gear-content"
                                aria-labelledby="table-retired-gear-header">
                         {% for gear in retiredGear %}
-                            {{ _self.gearStatisticRow(gear, globalLoopIndex, unitSystem) }}
-                            {% set globalLoopIndex = globalLoopIndex + 1 %}
+                            {{ _self.gearStatisticRow(gear, unitSystem) }}
                         {% endfor %}
                         </tbody>
                     {% endif %}
@@ -163,38 +141,38 @@
     </div>
 {% endautoescape %}
 
-{% macro gearStatisticRow(gear, loopIndex, unitSystem) %}
+{% macro gearStatisticRow(gear, unitSystem) %}
     {% autoescape false %}
-        <tr class="{{ cycle(['bg-white border-b', 'border-b bg-gray-50'], loopIndex) }}">
-            <th scope="row" class="px-2 py-2 sticky left-0 font-medium text-gray-900 whitespace-nowrap {{ cycle(['bg-white', 'bg-gray-50'], loopIndex) }}">
+        <tr class="group/row">
+            <th scope="row" class="px-2 py-2 sticky left-0 font-medium bg-white whitespace-nowrap">
                 <a href="#" data-router-navigate="{{ relativeUrl('activities') }}" data-filters='{{ dataFilters('activities', {gear: gear.getId()}) }}' class="font-medium text-blue-600 hover:underline">
                     {{ gear.getName() }}
                 </a>
             </th>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {{ gear.getNumberOfActivities() }}
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {% if gear.getDistance().toFloat() > 0 %}
                     {{ gear.getAverageDistance()|renderMeasurement(0, 'avg'|trans) }} /
                     {{ gear.getDistance()|renderMeasurement(0, 'total'|trans) }}
                 {% else %}
-                    0<span class="text-xs">{{ gear.getDistance().getSymbol() }}</span>
+                    0<span class="text-xxs ml-px">{{ gear.getDistance().getSymbol() }}</span>
                 {% endif %}
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {{ gear.getElevation()|renderMeasurement(0) }}
             </td>
-            <td class="px-6 py-2 truncate" title="{{ gear.getMovingTimeInHours().toFloat()|formatNumber(1) }}h">
+            <td class="truncate" title="{{ gear.getMovingTimeInHours().toFloat()|formatNumber(1) }}h">
                 {{ gear.getMovingTimeFormatted() }}
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {{ gear.getAverageSpeed()|renderMeasurement(1) }}
             </td>
-            <td class="px-6 py-2 truncate">
-                {{ gear.getTotalCalories()|formatNumber(0) }}<span class="text-xs">kcal</span>
+            <td class="truncate">
+                {{ gear.getTotalCalories()|formatNumber(0) }}<span class="text-xxs ml-px">kcal</span>
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {% set purchasePrice = gear.getPurchasePrice() %}
                 {% if purchasePrice %}
                     {{ purchasePrice|formatMoney }}
@@ -202,7 +180,7 @@
                     -
                 {% endif %}
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {% set relativeCostPerHour = gear.getRelativeCostPerHour() %}
                 {% if relativeCostPerHour %}
                     {{ relativeCostPerHour|formatMoney }}
@@ -210,7 +188,7 @@
                     -
                 {% endif %}
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {% set relativeCostPerWorkout = gear.getRelativeCostPerWorkout() %}
                 {% if relativeCostPerWorkout %}
                     {{ relativeCostPerWorkout|formatMoney }}
@@ -218,7 +196,7 @@
                     -
                 {% endif %}
             </td>
-            <td class="px-6 py-2 truncate">
+            <td class="truncate">
                 {% set relativeCostPerDistanceUnit = gear.getRelativeCostPerDistanceUnit(unitSystem) %}
                 {% if relativeCostPerDistanceUnit %}
                     {{ relativeCostPerDistanceUnit|formatMoney }}
