@@ -1,7 +1,7 @@
 import {fetchJson} from "../../utils";
 import L from 'leaflet';
 import {createMapToolsControl} from "./leaflet-controls";
-import 'leaflet-gesture-handling';
+import './ctrl-scroll-zoom';
 
 export default class LeafletMap {
     constructor(mapNode, data) {
@@ -9,12 +9,12 @@ export default class LeafletMap {
         this.data = data;
 
         this.map = L.map(mapNode, {
-            gestureHandling: data.scrollWheelZoom || false,
-            scrollWheelZoom: data.scrollWheelZoom || false,
+            ctrlScrollZoom: true,
             minZoom: data.minZoom,
             maxZoom: data.maxZoom,
             zoomSnap: .5,
             zoomDelta: .5,
+            preferCanvas: true,
         });
 
         if (data.tileLayer) {
@@ -32,7 +32,8 @@ export default class LeafletMap {
                 color: '#fc6719',
                 weight: 2,
                 opacity: 0.9,
-                lineJoin: 'round'
+                lineJoin: 'round',
+                smoothFactor: 2.0
             }).addTo(featureGroup);
 
             if (this.data.showStartMarker) {
