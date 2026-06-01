@@ -55,7 +55,6 @@ Challenges: Challenges
 'Clear all filters': 'Clear all filters'
 'Clear chat': 'Clear chat'
 'Close modal': 'Close modal'
-'Collapse sidebar': 'Collapse sidebar'
 Commutes: Commutes
 'Commutes only': 'Commutes only'
 Compare: Compare
@@ -102,6 +101,7 @@ Eddington: Eddington
 'Eddington number': 'Eddington number'
 'Eddington over time': 'Eddington over time'
 'Effort vs heart rate': 'Effort vs heart rate'
+'Elapsed time': 'Elapsed time'
 Elev: Elev
 Elev.: Elev.
 Elevation: Elevation
