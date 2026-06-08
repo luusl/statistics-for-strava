@@ -1,3 +1,12 @@
+# Build the fit-tool Go binary (decodes Garmin .FIT files to JSON).
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS fit-tool
+ARG TARGETARCH
+WORKDIR /build
+COPY docker/fit-tool/go.mod docker/fit-tool/go.sum ./
+RUN go mod download
+COPY docker/fit-tool/ ./
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -ldflags="-s -w" -o /out/fit-tool .
+
 FROM dunglas/frankenphp:1-php8.5-alpine
 
 WORKDIR /var/www
@@ -56,7 +65,7 @@ RUN mkdir -p /var/www/var/log
 # Install Shoutrrr.
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
-ARG SHOUTRRR_VERSION="0.15.1"
+ARG SHOUTRRR_VERSION="0.16.0"
 
 RUN if [ "${TARGETARCH}" = "arm64" ]; then \
       curl -L -o shoutrrr.tar.gz "https://github.com/nicholas-fedor/shoutrrr/releases/download/v$SHOUTRRR_VERSION/shoutrrr_linux_arm64v8_${SHOUTRRR_VERSION}.tar.gz"; \
@@ -70,6 +79,9 @@ RUN if [ "${TARGETARCH}" = "arm64" ]; then \
 RUN tar -xzf shoutrrr.tar.gz \
     && chmod +x shoutrrr \
     && mv shoutrrr /usr/bin/shoutrrr && rm shoutrrr.tar.gz
+
+# Install fit-tool (Garmin .FIT decoder).
+COPY --from=fit-tool /out/fit-tool /usr/bin/fit-tool
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]

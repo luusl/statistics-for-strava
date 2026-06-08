@@ -6,6 +6,7 @@ namespace App\Tests\Domain\Activity;
 
 use App\Domain\Activity\Activity;
 use App\Domain\Activity\ActivityId;
+use App\Domain\Activity\ImportSource;
 use App\Domain\Activity\Route\RouteGeography;
 use App\Domain\Activity\SportType\SportType;
 use App\Domain\Activity\WorkoutType;
@@ -15,6 +16,7 @@ use App\Infrastructure\ValueObject\Geography\Coordinate;
 use App\Infrastructure\ValueObject\Measurement\Length\Kilometer;
 use App\Infrastructure\ValueObject\Measurement\Length\Meter;
 use App\Infrastructure\ValueObject\Measurement\Velocity\KmPerHour;
+use App\Infrastructure\ValueObject\String\ExternalReferenceId;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 
 final class ActivityBuilder
@@ -23,6 +25,8 @@ final class ActivityBuilder
     private SerializableDateTime $startDateTime;
     private SportType $sportType = SportType::RIDE;
     private WorldType $worldType = WorldType::REAL_WORLD;
+    private ImportSource $importSource = ImportSource::STRAVA_API;
+    private ExternalReferenceId $externalReferenceId;
     private string $name = 'Test activity';
     private readonly string $description;
     private Kilometer $distance;
@@ -67,6 +71,7 @@ final class ActivityBuilder
         $this->routeGeography = RouteGeography::create([]);
         $this->isCommute = false;
         $this->workoutType = null;
+        $this->externalReferenceId = ExternalReferenceId::fromString('1234567');
     }
 
     public static function fromDefaults(): self
@@ -81,6 +86,8 @@ final class ActivityBuilder
             startDateTime: $this->startDateTime,
             sportType: $this->sportType,
             worldType: $this->worldType,
+            importSource: $this->importSource,
+            externalReferenceId: $this->externalReferenceId,
             name: $this->name,
             description: $this->description,
             distance: $this->distance,
@@ -260,6 +267,20 @@ final class ActivityBuilder
     public function withWorldType(WorldType $worldType): self
     {
         $this->worldType = $worldType;
+
+        return $this;
+    }
+
+    public function withImportSource(ImportSource $importSource): self
+    {
+        $this->importSource = $importSource;
+
+        return $this;
+    }
+
+    public function withExternalReferenceId(?ExternalReferenceId $externalReferenceId): self
+    {
+        $this->externalReferenceId = $externalReferenceId;
 
         return $this;
     }

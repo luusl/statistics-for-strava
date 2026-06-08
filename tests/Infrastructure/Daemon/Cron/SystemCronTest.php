@@ -23,6 +23,7 @@ class SystemCronTest extends ContainerTestCase
         /** @var \App\Infrastructure\Daemon\Cron\RunnableCronAction $action */
         foreach ($cron->getAllRunnableCronActions() as $action) {
             $snapshot[$action->getId()] = [
+                'supportsConfiguredImportMode' => $action->supportsConfiguredImportMode(),
                 'requiresDatabaseSchemaToBeUpdated' => $action->requiresDatabaseSchemaToBeUpdated(),
                 'mutexTtl' => $action->getMutexTtl(),
             ];
@@ -59,6 +60,27 @@ class SystemCronTest extends ContainerTestCase
             ],
             iterator_to_array($cron)
         );
+    }
+
+    public function testItSkipsActionsThatDoNotSupportTheConfiguredImportMode(): void
+    {
+        $configuredCronActions = ConfiguredCronActions::fromConfig([
+            [
+                'action' => 'fake',
+                'expression' => '* * * * *',
+                'enabled' => true,
+            ],
+        ]);
+        $runnableCronActions = [
+            new FakeRunnableCronAction(supportsConfiguredImportMode: false),
+        ];
+
+        $cron = new SystemCron(
+            runnableCronActions: $runnableCronActions,
+            configuredCronActions: $configuredCronActions,
+        );
+
+        $this->assertEquals([], iterator_to_array($cron));
     }
 
     public function testItShouldThrowOnInvalidAction(): void

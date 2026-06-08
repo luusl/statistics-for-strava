@@ -27,6 +27,7 @@ use App\Infrastructure\ValueObject\Measurement\Velocity\KmPerHour;
 use App\Infrastructure\ValueObject\Measurement\Velocity\MetersPerSecond;
 use App\Infrastructure\ValueObject\Measurement\Velocity\SecPer100Meter;
 use App\Infrastructure\ValueObject\Measurement\Velocity\SecPerKm;
+use App\Infrastructure\ValueObject\String\ExternalReferenceId;
 use App\Infrastructure\ValueObject\String\Name;
 use App\Infrastructure\ValueObject\Time\SerializableDateTime;
 use App\Infrastructure\ValueObject\Time\SerializableTimezone;
@@ -77,6 +78,10 @@ final class Activity implements SupportsAITooling
         private readonly SportType $sportType,
         #[ORM\Column(type: 'string', nullable: true)]
         private readonly WorldType $worldType,
+        #[ORM\Column(type: 'string')]
+        private readonly ImportSource $importSource,
+        #[ORM\Column(type: 'string', nullable: true)]
+        private readonly ?ExternalReferenceId $externalReferenceId,
         #[ORM\Column(type: 'string')]
         private readonly string $name,
         #[ORM\Column(type: 'string', nullable: true)]
@@ -135,7 +140,7 @@ final class Activity implements SupportsAITooling
     /**
      * @param array<mixed> $rawData
      */
-    public static function createFromRawData(array $rawData): self
+    public static function createFromRawStravaData(array $rawData): self
     {
         $startDate = SerializableDateTime::createFromFormat(
             format: Activity::DATE_TIME_FORMAT,
@@ -144,19 +149,14 @@ final class Activity implements SupportsAITooling
         );
 
         $deviceName = $rawData['device_name'] ?? null;
-        $worldType = match (true) {
-            'zwift' === strtolower($deviceName ?? '') => WorldType::ZWIFT,
-            'rouvy' === strtolower($deviceName ?? '') => WorldType::ROUVY,
-            'mywhoosh' === strtolower($deviceName ?? '') => WorldType::MY_WHOOSH,
-            str_contains(strtolower($rawData['name'] ?? ''), 'mywhoosh') => WorldType::MY_WHOOSH,
-            default => WorldType::REAL_WORLD,
-        };
 
         return self::fromState(
             activityId: ActivityId::fromUnprefixed((string) $rawData['id']),
             startDateTime: $startDate,
             sportType: SportType::from($rawData['sport_type']),
-            worldType: $worldType,
+            worldType: WorldType::fromDeviceAndActivityName($deviceName, $rawData['name'] ?? ''),
+            importSource: ImportSource::STRAVA_API,
+            externalReferenceId: ExternalReferenceId::fromOptionalString($rawData['external_id'] ?? ''),
             name: $rawData['name'],
             description: $rawData['description'],
             distance: Kilometer::from(round($rawData['distance'] / 1000, 3)),
@@ -197,6 +197,8 @@ final class Activity implements SupportsAITooling
         SerializableDateTime $startDateTime,
         SportType $sportType,
         WorldType $worldType,
+        ImportSource $importSource,
+        ?ExternalReferenceId $externalReferenceId,
         string $name,
         ?string $description,
         Kilometer $distance,
@@ -229,6 +231,8 @@ final class Activity implements SupportsAITooling
             startDateTime: $startDateTime,
             sportType: $sportType,
             worldType: $worldType,
+            importSource: $importSource,
+            externalReferenceId: $externalReferenceId,
             name: $name,
             description: $description,
             distance: $distance,
@@ -276,6 +280,16 @@ final class Activity implements SupportsAITooling
     public function getWorldType(): WorldType
     {
         return $this->worldType;
+    }
+
+    public function getImportSource(): ImportSource
+    {
+        return $this->importSource;
+    }
+
+    public function getExternalReferenceId(): ?ExternalReferenceId
+    {
+        return $this->externalReferenceId;
     }
 
     public function withSportType(SportType $sportType): self

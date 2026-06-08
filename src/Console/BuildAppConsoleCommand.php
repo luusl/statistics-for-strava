@@ -24,7 +24,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[WithMonologChannel('console-output')]
 #[WithMutex(lockName: LockName::IMPORT_DATA_OR_BUILD_APP)]
-#[AsCommand(name: 'app:strava:build-files', description: 'Build Strava files')]
+#[AsCommand(name: 'app:data:build|app:strava:build-files', description: 'Build Strava files')]
 final class BuildAppConsoleCommand extends Command
 {
     use ProvideConsoleIntro;

@@ -7,11 +7,21 @@ namespace App\Tests\Infrastructure\Daemon\Cron;
 use App\Infrastructure\Daemon\Cron\RunnableCronAction;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class FakeRunnableCronAction implements RunnableCronAction
+final readonly class FakeRunnableCronAction implements RunnableCronAction
 {
+    public function __construct(
+        private bool $supportsConfiguredImportMode = true,
+    ) {
+    }
+
     public function getId(): string
     {
         return 'fake';
+    }
+
+    public function supportsConfiguredImportMode(): bool
+    {
+        return $this->supportsConfiguredImportMode;
     }
 
     public function getMutexTtl(): int

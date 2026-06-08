@@ -62,8 +62,8 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
         private Countries $countries,
         private UnitSystem $unitSystem,
         private Environment $twig,
-        private FilesystemOperator $buildStorage,
-        private FilesystemOperator $apiStorage,
+        private FilesystemOperator $buildHtmlStorage,
+        private FilesystemOperator $buildApiStorage,
         private TranslatorInterface $translator,
     ) {
     }
@@ -84,7 +84,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             translator: $this->translator,
         );
 
-        $this->buildStorage->write(
+        $this->buildHtmlStorage->write(
             'activities.html',
             $this->twig->load('html/activity/activities.html.twig')->render([
                 'sportTypes' => $importedSportTypes,
@@ -231,11 +231,11 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
 
             $unprefixedActivityId = $activity->getId()->toUnprefixedString();
             if ($profileChart) {
-                $this->apiStorage->write(
+                $this->buildApiStorage->write(
                     sprintf('activity/%s/metrics.json', $unprefixedActivityId),
                     (string) Json::encodeAndCompress($profileChart),
                 );
-                $this->apiStorage->write(
+                $this->buildApiStorage->write(
                     sprintf('activity/%s/coordinates.json', $unprefixedActivityId),
                     (string) Json::encodeAndCompress($coordinateMap),
                 );
@@ -244,7 +244,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             $polylinesFileLocation = sprintf('activity/%s/polylines.json', $unprefixedActivityId);
             if (($leafletMap = $activity->getLeafletMap()) instanceof LeafletMap) {
                 $coordinates = $coordinateMap ?: $activity->getEncodedPolyline()?->decodeAndPairLatLng();
-                $this->apiStorage->write(
+                $this->buildApiStorage->write(
                     $polylinesFileLocation,
                     (string) Json::encodeAndCompress([$coordinates]),
                 );
@@ -259,7 +259,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             } catch (EntityNotFound) {
             }
 
-            $this->buildStorage->write(
+            $this->buildHtmlStorage->write(
                 'activity/'.$activity->getId().'.html',
                 $this->twig->load($templateName)->render([
                     'activity' => $activity,
@@ -291,7 +291,7 @@ final readonly class BuildActivitiesHtmlCommandHandler implements CommandHandler
             );
         }
 
-        $this->apiStorage->write(
+        $this->buildApiStorage->write(
             'activity/data-table.json',
             (string) Json::encodeAndCompress($dataDatableRows),
         );

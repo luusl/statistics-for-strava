@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     env(APP_DEBUG): 0
+    env(IMPORT_MODE): 'stravaApi'
     env(LOCK_DSN): 'flock'
     env(TZ): ''
     env(SECURED_IMAGE_ALLOWED_IPS): ''
@@ -28,6 +29,30 @@ services:
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
+
+    App\Infrastructure\Config\Leaflet\LeafletConfig:
+        factory: [ null, 'create' ]
+        arguments: [
+            '@=app_config("appearance.maps.polylineColor", "#fc6719")',
+            '@=app_config("appearance.maps.tileLayerUrl", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")',
+            '@=app_config("appearance.maps.enableGreyScale", true)',
+        ]
+
+    App\Infrastructure\Config\Leaflet\HeatmapConfig:
+        factory: [ null, 'create' ]
+        arguments: [
+            '@App\Infrastructure\Config\Leaflet\LeafletConfig',
+            '@=app_config("appearance.maps.heatmap.initialCenter", [])',
+            '@=app_config("appearance.maps.heatmap.initialZoom", 12)'
+        ]
+
+    App\Infrastructure\Config\Photos\DefaultEnabledPhotoFilters:
+        factory: [ null, 'from' ]
+        arguments: ['@=app_config("appearance.photos.defaultEnabledFilters", [])']
+
+    App\Infrastructure\Config\Photos\HidePhotosForSportTypes:
+        factory: [ null, 'from' ]
+        arguments: ['@=app_config("appearance.photos.hidePhotosForSportTypes", [])']
 
     App\Infrastructure\Http\ErrorResponseExceptionListener:
         tags:
@@ -90,41 +115,23 @@ services:
       factory: [ null, 'fromOptionalString' ]
       arguments: ['@=app_config("general.profilePictureUrl")']
 
-    App\Application\Build\BuildHeatmapHtml\HeatmapConfig:
-        factory: [ null, 'create' ]
-        arguments: [
-            '@=app_config("appearance.heatmap.polylineColor", "#fc6719")',
-            '@=app_config("appearance.heatmap.tileLayerUrl", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")',
-            '@=app_config("appearance.heatmap.enableGreyScale", true)',
-            '@=app_config("appearance.heatmap.initialCenter", [])',
-            '@=app_config("appearance.heatmap.initialZoom", 12)'
-        ]
-
-    App\Application\Build\BuildPhotosHtml\DefaultEnabledPhotoFilters:
-        factory: [ null, 'from' ]
-        arguments: ['@=app_config("appearance.photos.defaultEnabledFilters", [])']
-
-    App\Application\Build\BuildPhotosHtml\HidePhotosForSportTypes:
-      factory: [ null, 'from' ]
-      arguments: ['@=app_config("appearance.photos.hidePhotosForSportTypes", [])']
-
-    App\Application\Import\ImportActivities\ActivityVisibilitiesToImport:
+    App\Application\Import\StravaImport\ImportActivities\ActivityVisibilitiesToImport:
       factory: [ null, 'from' ]
       arguments: ['@=app_config("import.activityVisibilitiesToImport")']
 
-    App\Application\Import\ImportActivities\NumberOfNewActivitiesToProcessPerImport:
+    App\Application\Import\StravaImport\ImportActivities\NumberOfNewActivitiesToProcessPerImport:
       factory: [ null, 'fromInt' ]
       arguments: ['@=app_config("import.numberOfNewActivitiesToProcessPerImport")']
 
-    App\Application\Import\ImportActivities\ActivitiesToSkipDuringImport:
+    App\Application\Import\StravaImport\ImportActivities\ActivitiesToSkipDuringImport:
       factory: [ null, 'from' ]
       arguments: ['@=app_config("import.activitiesToSkipDuringImport")']
 
-    App\Application\Import\ImportActivities\SkipActivitiesRecordedBefore:
+    App\Application\Import\StravaImport\ImportActivities\SkipActivitiesRecordedBefore:
       factory: [ null, 'fromOptionalString' ]
       arguments: ['@=app_config("import.skipActivitiesRecordedBefore")']
 
-    App\Application\Import\ImportSegments\OptInToSegmentDetailsImport:
+    App\Application\Import\StravaImport\ImportSegments\OptInToSegmentDetailsImport:
       factory: [ null, 'fromBool' ]
       arguments: [ '@=app_config("import.optInToSegmentDetailImport", false)' ]
 
@@ -168,6 +175,10 @@ services:
     App\Domain\Strava\StravaRefreshToken:
         factory: [ null, 'fromString' ]
         arguments: ['%env(string:STRAVA_REFRESH_TOKEN)%']
+
+    App\Domain\Strava\Webhook\WebhookConfig:
+        factory: [ null, 'fromArray' ]
+        arguments: ['@=app_config("import.webhooks", [])']
 
     App\Domain\Athlete\AthleteBirthDate:
         factory: [ null, 'fromString' ]
@@ -228,9 +239,10 @@ services:
         factory: [ null, 'fromArray' ]
         arguments: ['@=app_config("gear.recordingDevices", [])']
 
-    App\Domain\Strava\Webhook\WebhookConfig:
-      factory: [ null, 'fromArray' ]
-      arguments: ['@=app_config("import.webhooks", [])']
+    App\Domain\Import\ImportMode:
+        autoconfigure: false
+        factory: [ null, 'from' ]
+        arguments: ['%env(string:IMPORT_MODE)%']
 
     App\Domain\Zwift\ZwiftLevel:
         factory: [ null, 'fromOptionalString' ]

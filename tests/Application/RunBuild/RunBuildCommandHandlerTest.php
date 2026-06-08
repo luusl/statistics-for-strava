@@ -2,7 +2,7 @@
 
 namespace App\Tests\Application\RunBuild;
 
-use App\Application\Import\ImportGear\GearImportStatus;
+use App\Application\Import\StravaImport\ImportGear\GearImportStatus;
 use App\Application\RunBuild\RunBuild;
 use App\Application\RunBuild\RunBuildCommandHandler;
 use App\Domain\Activity\ActivityId;
