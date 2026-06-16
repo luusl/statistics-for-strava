@@ -8,7 +8,7 @@
 <a href="https://raw.githubusercontent.com/robiningelbrecht/statistics-for-strava/refs/heads/master/LICENSE"><img src="https://img.shields.io/github/license/robiningelbrecht/statistics-for-strava?color=428f7e&logo=open%20source%20initiative&logoColor=white" alt="License"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/image-size/robiningelbrecht/strava-statistics?logo=docker&logoColor=white" alt="Docker Image Size"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/pulls/robiningelbrecht/strava-statistics?logo=docker&logoColor=white&label=docker%20hub%20pulls" alt="Docker Hub pulls"></a>
-<a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/badge/dynamic/json?url=https://ghcr-badge.elias.eu.org/api/robiningelbrecht/statistics-for-strava/statistics-for-strava&query=downloadCount&logo=docker&label=github%20cr%20pulls&logoColor=white" alt="GitHub CR pulls"></a>
+<a href="https://github.com/robiningelbrecht/statistics-for-strava/pkgs/container/statistics-for-strava"><img src="https://img.shields.io/badge/dynamic/json?url=https://ghcr-badge.elias.eu.org/api/robiningelbrecht/statistics-for-strava/statistics-for-strava&query=downloadCount&logo=docker&label=github%20cr%20pulls&logoColor=white" alt="GitHub CR pulls"></a>
 <a href="https://hub.docker.com/r/robiningelbrecht/strava-statistics"><img src="https://img.shields.io/docker/v/robiningelbrecht/strava-statistics?sort=semver&logo=docker&logoColor=white" alt="Docker version"></a>
 <a href="https://discord.gg/p4zpZyCHNc"><img src="https://img.shields.io/badge/Statistics%20for%20Strava-%235865F4?logo=discord&logoColor=%23ffffff&label=%20&labelColor=585858" alt="Discord server"></a>  
 </p>
@@ -20,8 +20,7 @@
 <p align="center">
   <a href="#-showcase">Showcase</a> •
   <a href="#-documentation">Docs</a> •
-  <a href="https://discord.gg/p4zpZyCHNc">Discord</a> •
-  <a href="#-sponsors">Sponsors</a>
+  <a href="https://discord.gg/p4zpZyCHNc">Discord</a>
 </p>
 
 <p align="center">
@@ -41,8 +40,8 @@ https://github.com/user-attachments/assets/81554f32-31be-4899-afd6-681ce3e7bcb6
 * **Activities** -  Browse a detailed list of everything you've done
 * **Monthly View** - Monthly stats with an interactive calendar
 * **Gear stats** - Track how much you've used each bike, shoe, etc.
-* **Custom gear** - Add custom gear setups  ([instructions](https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/custom-gear))
-* **Maintenance Tracking** - Keep tabs on gear wear and tear ([instructions](https://statistics-for-strava-docs.robiningelbrecht.be/#/configuration/gear-maintenance))
+* **Custom gear** - Add custom gear setups  ([instructions](https://docs.getsfs.app/#/configuration/custom-gear))
+* **Maintenance Tracking** - Keep tabs on gear wear and tear ([instructions](https://docs.getsfs.app/#/configuration/gear-maintenance))
 * **Eddington** - For your distance milestones
 * **Segments & Efforts** - Dive into your segment history and times
 * **Heatmap** - Visualize where you’ve been active the most
@@ -57,11 +56,5 @@ https://github.com/user-attachments/assets/81554f32-31be-4899-afd6-681ce3e7bcb6
 ## 📖 Documentation
 
 Start off by showing some ❤️ and give this repo a star. 
-When you are done, head over to the [documentation](https://statistics-for-strava-docs.robiningelbrecht.be) to get started with the installation and configuration of Statistics for Strava.
-
-## 🫶 Sponsors
-
-This project is sponsored by [Blackfire.io](https://www.blackfire.io).
-
-![Blackfire logo](docs/assets/images/blackfire-logo.png)
+When you are done, head over to the [documentation](https://docs.getsfs.app) to get started with the installation and configuration of Statistics for Strava.
 

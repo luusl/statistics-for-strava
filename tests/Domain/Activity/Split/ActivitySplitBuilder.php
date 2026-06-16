@@ -19,7 +19,7 @@ final class ActivitySplitBuilder
     private Meter $distance;
     private readonly int $elapsedTimeInSeconds;
     private int $movingTimeInSeconds;
-    private readonly Meter $elevationDifference;
+    private Meter $elevationDifference;
     private MetersPerSecond $averageSpeed;
     private MetersPerSecond $minAverageSpeed;
     private MetersPerSecond $maxAverageSpeed;
@@ -60,7 +60,6 @@ final class ActivitySplitBuilder
             maxAverageSpeed: $this->maxAverageSpeed,
             paceZone: $this->paceZone,
             gapPaceInSecondsPerKm: $this->gapPaceInSecondsPerKm,
-            averageHeartRate: $this->averageHeartRate,
         );
     }
 
@@ -116,6 +115,13 @@ final class ActivitySplitBuilder
     public function withMovingTimeInSeconds(int $movingTimeInSeconds): self
     {
         $this->movingTimeInSeconds = $movingTimeInSeconds;
+
+        return $this;
+    }
+
+    public function withElevationDifferenceInMeter(float|int $elevationDifference): self
+    {
+        $this->elevationDifference = Meter::from($elevationDifference);
 
         return $this;
     }

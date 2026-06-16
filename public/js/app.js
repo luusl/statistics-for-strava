@@ -13,9 +13,14 @@ import LazyLoad from "../libraries/lazyload.min";
 import DataTableManager from "./features/data-table/data-table-manager";
 import FullscreenManager from "./components/fullscreen";
 import ScrollTo from "./components/scroll-to";
-import Heatmap from "./features/heatmap/heatmap";
 import MilestoneFilter from "./features/milestones/milestone-filter";
 import DarkModeManager from "./components/dark-mode";
+import DropdownManager from "./components/dropdown";
+import {initAccordions, initPopovers, initDrawers} from "flowbite";
+
+// Override webpack's compile-time publicPath so dynamic imports resolve under subpath deployments.
+const sfsBasePath = window.statisticsForStrava?.appUrl?.basePath?.replace(/^\/+|\/+$/g, '');
+__webpack_public_path__ = '/' + (sfsBasePath ? sfsBasePath + '/' : '') + 'js/dist/';
 
 const $main = document.querySelector("main");
 
@@ -24,12 +29,14 @@ const router = new Router($main);
 router.boot();
 
 registerEchartsCallbacks();
+initDrawers();
 
 const sidebar = new Sidebar();
 const modalManager = new ModalManager(router);
 const chartManager = new ChartManager(router, modalManager);
 const leafletMapManager = new LeafletMapManager();
 const tabsManager = new TabsManager();
+const dropdownManager = new DropdownManager();
 const dataTableManager = new DataTableManager();
 const fullscreenManager = new FullscreenManager();
 const scrollTo = new ScrollTo();
@@ -45,12 +52,10 @@ const initElements = (rootNode) => {
     lazyLoad.update();
 
     tabsManager.init(rootNode);
+    dropdownManager.init(rootNode);
     initPopovers();
-    initTooltips();
-    initDropdowns();
     initAccordions();
 
-    modalManager.init(rootNode);
     dataTableManager.init(rootNode);
     chartManager.init(rootNode, darkModeManager.isDarkModeEnabled());
     leafletMapManager.init(rootNode);
@@ -59,6 +64,7 @@ const initElements = (rootNode) => {
 }
 
 sidebar.init();
+modalManager.init();
 darkModeManager.attachEventListeners();
 
 eventBus.on(Events.DARK_MODE_TOGGLED, ({darkModeEnabled}) => {
@@ -80,11 +86,20 @@ eventBus.on(Events.PAGE_LOADED, async ({page, modalId}) => {
     }
     if (page === 'heatmap') {
         const $heatmapWrapper = document.querySelector('.heatmap-wrapper');
+        const {default: Heatmap} = await import(
+            /* webpackChunkName: "leaflet" */ './features/heatmap/heatmap'
+        );
         await new Heatmap($heatmapWrapper, modalManager).render();
     }
     if (page === 'photos') {
         const $photoWallWrapper = document.querySelector('.photo-wall-wrapper');
         await new PhotoWall($photoWallWrapper).render();
+    }
+});
+eventBus.on(Events.MODAL_HISTORY_CHANGED, ({modalId}) => {
+    modalManager.close();
+    if (modalId) {
+        modalManager.open(modalId);
     }
 });
 eventBus.on(Events.NAVIGATION_CLICKED, ({link}) => {
@@ -106,10 +121,6 @@ eventBus.on(Events.MODAL_LOADED, async ({node, modalName}) => {
         new Chat(node).render();
     }
 });
-eventBus.on(Events.DATA_TABLE_CLUSTER_CHANGED, ({node}) => {
-    modalManager.init(node);
-});
-
 const $modalAIChat = document.querySelector('a[data-modal-custom-ai]');
 if ($modalAIChat) {
     $modalAIChat.addEventListener('click', (e) => {

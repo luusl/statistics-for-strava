@@ -5,6 +5,7 @@
   - [Challenges and trophies](getting-started/challenges-and-trophies.md "Statistics for Strava | Challenges and trophies")
   - [Updates](getting-started/updates.md "Statistics for Strava | Updates")
   - [Proxmox setup](getting-started/proxmox.md "Statistics for Strava | Proxmox setup")
+  - [Kubernetes with HelmForge](getting-started/kubernetes-helmforge.md "Statistics for Strava | Kubernetes with HelmForge")
 
 - Configuration
 
@@ -32,6 +33,5 @@
 
   - [Feature requests](community/feature-requests.md "Statistics for Strava | Feature requests")
   - [Projects](community/projects.md "Statistics for Strava | Projects")
-  - [Sponsors](community/sponsors.md "Statistics for Strava | Sponsors")
   
 - [Changelog](changelog.md "Statistics for Strava | Changelog")
